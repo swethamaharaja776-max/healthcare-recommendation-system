@@ -1,17 +1,51 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>AI Healthcare Recommendation System</title>
+    <title>AI Powered Healthcare Recommendation System</title>
 </head>
 <body>
+
     <h2>AI Powered Healthcare Recommendation System</h2>
 
-    <label>Enter Symptoms:</label><br>
-    <input type="text" id="symptom" placeholder="Enter symptom">
-    <button onclick="getRecommendation()">Get Recommendation</button>
+    <h3>Patient Details</h3>
+
+    <form>
+
+        <label>Patient Name:</label><br>
+        <input type="text" id="name" placeholder="Enter your name"><br><br>
+
+        <label>Age:</label><br>
+        <input type="number" id="age" placeholder="Enter your age"><br><br>
+
+        <label>Gender:</label><br>
+        <select id="gender">
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+        </select><br><br>
+
+        <label>Weight (kg):</label><br>
+        <input type="number" id="weight" placeholder="Enter weight"><br><br>
+
+        <label>Blood Pressure (BP):</label><br>
+        <input type="text" id="bp" placeholder="120/80"><br><br>
+
+        <label>Blood Sugar (mg/dL):</label><br>
+        <input type="number" id="sugar" placeholder="Enter sugar level"><br><br>
+
+        <label>Body Temperature (°C):</label><br>
+        <input type="number" id="temperature" step="0.1" placeholder="36.5"><br><br>
+
+        <label>Problem / Symptoms:</label><br>
+        <textarea id="symptom" rows="4" cols="35" placeholder="Example: Fever, Cough"></textarea><br><br>
+
+        <button type="button" onclick="getRecommendation()">Get Recommendation</button>
+
+    </form>
 
     <h3 id="result"></h3>
 
     <script src="script.js"></script>
+
 </body>
 </html>
