@@ -1,41 +1,82 @@
 function getRecommendation() {
 
-    const symptom = document.getElementById("symptom").value.toLowerCase();
+    const symptom = document.getElementById("symptom").value.toLowerCase().trim();
     let result = "";
 
     if (symptom.includes("fever")) {
-        result = "Disease: Viral Fever <br> Recommendation: Drink plenty of water and take rest.";
+        result = `<h3>Patient Health Report</h3>
+        <b>Possible Disease:</b> Viral Fever<br><br>
+        <b>Recommendation:</b><br>
+        ✓ Drink plenty of water.<br>
+        ✓ Take adequate rest.<br>
+        ✓ Eat healthy food.<br><br>
+        <b>Risk Level:</b> Medium<br><br>
+        <b>Doctor Advice:</b><br>
+        Consult a doctor if the fever lasts more than 2 days.`;
+
     } else if (symptom.includes("cold")) {
-        result = "Disease: Common Cold <br> Recommendation: Drink warm water.";
+        result = "<b>Disease:</b> Common Cold<br><b>Recommendation:</b> Drink warm water and take rest.";
+
     } else if (symptom.includes("cough")) {
-        result = "Disease: Cough <br> Recommendation: Drink warm fluids.";
+        result = "<b>Disease:</b> Cough<br><b>Recommendation:</b> Drink warm fluids and avoid cold drinks.";
+
     } else if (symptom.includes("headache")) {
-        result = "Disease: Headache <br> Recommendation: Take rest and stay hydrated.";
+        result = "<b>Disease:</b> Headache<br><b>Recommendation:</b> Take rest and stay hydrated.";
+
     } else if (symptom.includes("stomach pain")) {
-        result = "Disease: Gastric Problem <br> Recommendation: Eat light food.";
+        result = "<b>Disease:</b> Gastric Problem<br><b>Recommendation:</b> Eat light food.";
+
     } else if (symptom.includes("vomiting")) {
-        result = "Disease: Food Poisoning <br> Recommendation: Drink ORS.";
+        result = "<b>Disease:</b> Food Poisoning<br><b>Recommendation:</b> Drink ORS and stay hydrated.";
+
     } else if (symptom.includes("diarrhea")) {
-        result = "Disease: Diarrhea <br> Recommendation: Stay hydrated.";
+        result = "<b>Disease:</b> Diarrhea<br><b>Recommendation:</b> Drink ORS and consult a doctor.";
+
     } else if (symptom.includes("sore throat")) {
-        result = "Disease: Throat Infection <br> Recommendation: Gargle with warm salt water.";
+        result = "<b>Disease:</b> Throat Infection<br><b>Recommendation:</b> Gargle with warm salt water.";
+
     } else if (symptom.includes("body pain")) {
-        result = "Disease: Muscle Pain <br> Recommendation: Take rest.";
+        result = "<b>Disease:</b> Muscle Pain<br><b>Recommendation:</b> Take proper rest.";
+
     } else if (symptom.includes("fatigue")) {
-        result = "Disease: Fatigue <br> Recommendation: Sleep well.";
+        result = "<b>Disease:</b> Fatigue<br><b>Recommendation:</b> Sleep well and eat healthy food.";
+
     } else if (symptom.includes("asthma")) {
-        result = "Disease: Asthma <br> Recommendation: Consult a doctor.";
+        result = "<b>Disease:</b> Asthma<br><b>Recommendation:</b> Use prescribed inhaler and consult a doctor.";
+
     } else if (symptom.includes("diabetes")) {
-        result = "Disease: Diabetes <br> Recommendation: Check blood sugar regularly.";
+        result = "<b>Disease:</b> Diabetes<br><b>Recommendation:</b> Monitor blood sugar regularly.";
+
     } else if (symptom.includes("hypertension")) {
-        result = "Disease: High Blood Pressure <br> Recommendation: Reduce salt intake.";
+        result = "<b>Disease:</b> High Blood Pressure<br><b>Recommendation:</b> Reduce salt intake.";
+
     } else if (symptom.includes("allergy")) {
-        result = "Disease: Allergy <br> Recommendation: Avoid allergens.";
+        result = "<b>Disease:</b> Allergy<br><b>Recommendation:</b> Avoid allergens.";
+
     } else if (symptom.includes("skin rash")) {
-        result = "Disease: Skin Allergy <br> Recommendation: Keep the affected area clean.";
+        result = "<b>Disease:</b> Skin Rash<br><b>Recommendation:</b> Keep skin clean and consult a dermatologist.";
+
+    } else if (symptom.includes("malaria")) {
+        result = "<b>Disease:</b> Malaria<br><b>Recommendation:</b> Consult a doctor immediately.";
+
+    } else if (symptom.includes("dengue")) {
+        result = "<b>Disease:</b> Dengue<br><b>Recommendation:</b> Drink plenty of fluids and seek medical care.";
+
+    } else if (symptom.includes("typhoid")) {
+        result = "<b>Disease:</b> Typhoid<br><b>Recommendation:</b> Take prescribed antibiotics and rest.";
+
+    } else if (symptom.includes("covid")) {
+        result = "<b>Disease:</b> COVID-19<br><b>Recommendation:</b> Isolate and consult a doctor.";
+
+    } else if (symptom.includes("chest pain")) {
+        result = "<b>Disease:</b> Chest Pain<br><b>Recommendation:</b> Seek immediate medical attention.";
+
+    } else if (symptom.includes("ear pain")) {
+        result = "<b>Disease:</b> Ear Infection<br><b>Recommendation:</b> Consult an ENT specialist.";
+
     } else {
-        result = "No matching disease found. Please consult a healthcare professional.";
+        result = "<b>No matching disease found.</b><br>Please consult a healthcare professional.";
     }
 
     document.getElementById("result").innerHTML = result;
-}
+    }
