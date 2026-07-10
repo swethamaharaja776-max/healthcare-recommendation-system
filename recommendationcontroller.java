@@ -1,40 +1,88 @@
-function getRecommendation() {
-    const symptom = document.getElementById("symptom").value.toLowerCase().trim();
-    let result = "";
+import org.springframework.web.bind.annotation.*;
+import java.util.HashMap;
+import java.util.Map;
 
-    if (symptom.includes("fever")) {
-        result = "Disease: Viral Fever<br>Recommendation: Drink plenty of water, take rest, and use Paracetamol if prescribed.";
-    } else if (symptom.includes("cold")) {
-        result = "Disease: Common Cold<br>Recommendation: Drink warm water and take adequate rest.";
-    } else if (symptom.includes("cough")) {
-        result = "Disease: Cough<br>Recommendation: Drink warm fluids and consult a doctor if cough persists.";
-    } else if (symptom.includes("headache")) {
-        result = "Disease: Headache<br>Recommendation: Stay hydrated and take sufficient rest.";
-    } else if (symptom.includes("stomach pain")) {
-        result = "Disease: Gastric Problem<br>Recommendation: Eat light food and drink enough water.";
-    } else if (symptom.includes("vomiting")) {
-        result = "Disease: Food Poisoning<br>Recommendation: Drink ORS and stay hydrated.";
-    } else if (symptom.includes("diarrhea")) {
-        result = "Disease: Diarrhea<br>Recommendation: Drink ORS and consult a doctor if severe.";
-    } else if (symptom.includes("sore throat")) {
-        result = "Disease: Throat Infection<br>Recommendation: Gargle with warm salt water.";
-    } else if (symptom.includes("body pain")) {
-        result = "Disease: Muscle Pain<br>Recommendation: Take proper rest and stay hydrated.";
-    } else if (symptom.includes("fatigue")) {
-        result = "Disease: Fatigue<br>Recommendation: Sleep well and eat a balanced diet.";
-    } else if (symptom.includes("diabetes")) {
-        result = "Disease: Diabetes<br>Recommendation: Monitor blood sugar and consult a doctor.";
-    } else if (symptom.includes("hypertension")) {
-        result = "Disease: High Blood Pressure<br>Recommendation: Reduce salt intake and exercise regularly.";
-    } else if (symptom.includes("asthma")) {
-        result = "Disease: Asthma<br>Recommendation: Use your inhaler as prescribed and avoid triggers.";
-    } else if (symptom.includes("allergy")) {
-        result = "Disease: Allergy<br>Recommendation: Avoid allergens and consult a doctor if symptoms worsen.";
-    } else if (symptom.includes("skin rash")) {
-        result = "Disease: Skin Allergy<br>Recommendation: Keep the area clean and consult a dermatologist.";
-    } else {
-        result = "No matching disease found. Please consult a healthcare professional.";
+@RestController
+@CrossOrigin(origins = "*")
+public class Controller {
+
+    @PostMapping("/recommend")
+    public Map<String, String> recommend(@RequestBody Map<String, String> patient) {
+
+        String symptom = patient.getOrDefault("symptom", "").toLowerCase();
+
+        String disease = "General Checkup";
+        String recommendation = "Maintain a healthy lifestyle and consult a doctor if symptoms continue.";
+        String risk = "Low";
+        String probability = "30%";
+
+        if (symptom.contains("fever")) {
+            disease = "Viral Fever";
+            recommendation = "Drink plenty of water, take adequate rest and consult a doctor if fever continues.";
+            risk = "Medium";
+            probability = "85%";
+        } 
+        else if (symptom.contains("cold")) {
+            disease = "Common Cold";
+            recommendation = "Drink warm water, take proper rest and eat healthy food.";
+            risk = "Low";
+            probability = "75%";
+        } 
+        else if (symptom.contains("cough")) {
+            disease = "Respiratory Infection";
+            recommendation = "Drink warm fluids, avoid cold drinks and consult a doctor if cough persists.";
+            risk = "Medium";
+            probability = "80%";
+        } 
+        else if (symptom.contains("headache")) {
+            disease = "Migraine / Stress";
+            recommendation = "Drink enough water, take proper rest and avoid stress.";
+            risk = "Low";
+            probability = "70%";
+        } 
+        else if (symptom.contains("stomach pain")) {
+            disease = "Gastric Problem";
+            recommendation = "Eat light food, drink enough water and consult a doctor if pain continues.";
+            risk = "Medium";
+            probability = "78%";
+        } 
+        else if (symptom.contains("vomiting")) {
+            disease = "Vomiting";
+            recommendation = "Drink ORS, stay hydrated and visit a doctor if symptoms continue.";
+            risk = "Medium";
+            probability = "82%";
+        } 
+        else if (symptom.contains("diabetes")) {
+            disease = "Diabetes";
+            recommendation = "Monitor blood sugar, exercise regularly and follow your doctor's advice.";
+            risk = "High";
+            probability = "90%";
+        } 
+        else if (symptom.contains("asthma")) {
+            disease = "Asthma";
+            recommendation = "Avoid dust and smoke, use the prescribed inhaler and consult your doctor regularly.";
+            risk = "High";
+            probability = "88%";
+        } 
+        else if (symptom.contains("dengue")) {
+            disease = "Dengue";
+            recommendation = "Drink plenty of fluids, take complete rest and visit a hospital immediately.";
+            risk = "High";
+            probability = "95%";
+        } 
+        else if (symptom.contains("malaria")) {
+            disease = "Malaria";
+            recommendation = "Take prescribed medicine, drink plenty of water and consult a doctor immediately.";
+            risk = "High";
+            probability = "92%";
+        }
+
+        Map<String, String> response = new HashMap<>();
+        response.put("disease", disease);
+        response.put("recommendation", recommendation);
+        response.put("risk", risk);
+        response.put("probability", probability);
+
+        return response;
     }
-
-    document.getElementById("result").innerHTML = result;
 }
