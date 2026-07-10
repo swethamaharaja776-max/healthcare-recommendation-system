@@ -1,68 +1,43 @@
-// 1. Declare global chart variables
-let probChart;
-let trendChart;
+let probChart, trendChart;
 
-// 2. Initialize Charts when DOM is ready
+// Initialize Charts
 document.addEventListener('DOMContentLoaded', () => {
-    const ctxProb = document.getElementById('probabilityChart').getContext('2d');
-    const ctxTrend = document.getElementById('trendChart').getContext('2d');
-
-    probChart = new Chart(ctxProb, {
+    probChart = new Chart(document.getElementById('probabilityChart'), {
         type: 'bar',
-        data: {
-            labels: ['Diagnosis'],
-            datasets: [{ label: 'Confidence (%)', data: [0], backgroundColor: '#1565c0' }]
-        }
+        data: { labels: ['Confidence'], datasets: [{ label: 'Percentage', data: [0], backgroundColor: '#1565c0' }] }
     });
-
-    trendChart = new Chart(ctxTrend, {
+    trendChart = new Chart(document.getElementById('trendChart'), {
         type: 'line',
-        data: {
-            labels: [],
-            datasets: [{ label: 'Confidence Trend', data: [], borderColor: '#00897b', fill: false }]
-        }
+        data: { labels: [], datasets: [{ label: 'Score', data: [], borderColor: '#00897b' }] }
     });
 });
 
-// 3. Main Logic
 async function analyzeHealth() {
-    try {
-        // A. UI Updates
-        document.getElementById('rname').innerText = document.getElementById('name').value;
-        document.getElementById('rage').innerText = document.getElementById('age').value;
-        document.getElementById('rgender').innerText = document.getElementById('gender').value;
-        document.getElementById('rdate').innerText = new Date().toLocaleString();
+    // 1. Get Values
+    const name = document.getElementById('name').value;
+    const age = document.getElementById('age').value;
+    const symptom = document.getElementById('symptom').value;
 
-        // B. API Call
-        const response = await fetch('http://localhost:8080/api/analyze', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ symptom: document.getElementById('symptom').value })
-        });
+    // 2. Update Report Section
+    document.getElementById('rname').innerText = name || "--";
+    document.getElementById('rage').innerText = age || "--";
+    document.getElementById('rdate').innerText = new Date().toLocaleString();
 
-        if (!response.ok) throw new Error('Server unreachable');
-        const data = await response.json();
+    // 3. Call API
+    const response = await fetch('http://localhost:8080/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ symptom: symptom })
+    });
+    const data = await response.json();
 
-        // C. Update Dashboard
-        document.getElementById('disease').innerText = data.disease;
-        document.getElementById('confidence').innerText = data.confidence;
-        document.getElementById('recommend').innerText = data.recommendation;
+    // 4. Update Dashboard
+    document.getElementById('disease').innerText = data.disease;
+    document.getElementById('risk').innerText = data.risk;
+    document.getElementById('confidence').innerText = data.confidence + "%";
+    document.getElementById('recommend').innerText = data.recommendation;
 
-        // D. Update Charts
-        const conf = parseInt(data.confidence) || 0;
-        
-        // Update Bar Chart
-        probChart.data.labels = [data.disease];
-        probChart.data.datasets[0].data = [conf];
-        probChart.update();
-
-        // Update Line Chart
-        trendChart.data.labels.push(new Date().toLocaleTimeString());
-        trendChart.data.datasets[0].data.push(conf);
-        trendChart.update();
-
-    } catch (error) {
-        console.error("Error:", error);
-        alert("Failed to analyze. Check if Spring Boot is running on 8080!");
-    }
+    // 5. Update Charts
+    probChart.data.datasets[0].data = [parseInt(data.confidence)];
+    probChart.update();
 }
