@@ -12,15 +12,17 @@ function getRecommendation(){
     let heart = Number(document.getElementById("heart").value);
     let temp = Number(document.getElementById("temp").value);
 
-    let symptoms =
-    document.getElementById("symptoms").value.toLowerCase();
-
+    let symptoms = document
+    .getElementById("symptoms")
+    .value
+    .toLowerCase();
 
 
     // Validation
 
-    if(name==="" || age==="" || symptoms===""){
-        alert("Please fill Name, Age and Symptoms");
+    if(name === "" || age === "" || symptoms === ""){
+
+        alert("Please fill Patient Name, Age and Symptoms");
         return;
     }
 
@@ -28,153 +30,123 @@ function getRecommendation(){
 
     // Patient Report
 
-    document.getElementById("rname").innerHTML=name;
-    document.getElementById("rage").innerHTML=age;
-    document.getElementById("rgender").innerHTML=gender;
+    document.getElementById("rname").innerHTML = name;
+    document.getElementById("rage").innerHTML = age;
+    document.getElementById("rgender").innerHTML = gender;
 
     document.getElementById("date").innerHTML =
     new Date().toLocaleString();
 
 
 
-    // BMI Calculation
+    // BMI
 
-    if(height>0 && weight>0){
+    if(height > 0 && weight > 0){
 
         let bmi =
         (weight / ((height/100)*(height/100))).toFixed(2);
 
-        document.getElementById("bmi").innerHTML=bmi;
+        document.getElementById("bmi").innerHTML = bmi;
+
     }
 
 
 
-    // Disease Probability
-
-    let fever=10;
-    let cold=10;
-    let respiratory=10;
-
-    let disease="Healthy";
-    let risk="Low Risk";
+    let disease = "Healthy";
+    let risk = "Low Risk";
 
     let recommendation =
     "Maintain healthy lifestyle and regular health checkup.";
 
 
+    let fever = 10;
+    let cold = 10;
+    let respiratory = 10;
 
-    // Symptom Analysis
+
+
+    // AI Symptom Prediction
 
 
     if(symptoms.includes("fever")){
 
-        disease="Viral Fever";
-        fever=85;
-        risk="Medium Risk";
+        disease = "Viral Fever";
+        risk = "Medium Risk";
 
-        recommendation=
-        "Drink plenty of water, take rest and monitor body temperature.";
+        fever = 85;
+
+        recommendation =
+        "Drink plenty of water, take adequate rest and monitor temperature.";
+
     }
-
 
 
     if(symptoms.includes("cold")){
 
-        disease="Common Cold";
-        cold=80;
-        risk="Medium Risk";
+        disease = "Common Cold";
+        risk = "Medium Risk";
 
-        recommendation=
-        "Drink warm fluids and get enough rest.";
+        cold = 80;
+
+        recommendation =
+        "Drink warm fluids and take proper rest.";
+
     }
-
 
 
     if(symptoms.includes("cough")){
 
-        disease="Respiratory Infection";
-        respiratory=75;
-        risk="Medium Risk";
+        disease = "Respiratory Infection";
+        risk = "Medium Risk";
 
-        recommendation=
+        respiratory = 75;
+
+        recommendation =
         "Avoid cold foods and consult doctor if cough continues.";
-    }
 
+    }
 
 
     if(symptoms.includes("headache")){
 
-        disease="Headache";
-        risk="Low Risk";
+        disease = "Headache";
 
-        recommendation=
-        "Take proper rest and stay hydrated.";
+        recommendation =
+        "Take rest and stay hydrated.";
+
     }
-
 
 
     if(symptoms.includes("stomach pain")){
 
-        disease="Digestive Problem";
-        risk="Medium Risk";
+        disease = "Digestive Problem";
+        risk = "Medium Risk";
 
-        recommendation=
+        recommendation =
         "Eat light food and drink enough water.";
-    }
 
+    }
 
 
     if(symptoms.includes("vomiting")){
 
-        disease="Gastric Infection";
-        risk="Medium Risk";
+        disease = "Gastric Infection";
+        risk = "Medium Risk";
 
-        recommendation=
+        recommendation =
         "Drink ORS and maintain hydration.";
-    }
 
+    }
 
 
     if(symptoms.includes("diarrhea")){
 
-        disease="Food Infection";
-        risk="Medium Risk";
+        disease = "Food Infection";
+        risk = "Medium Risk";
 
-        recommendation=
+        recommendation =
         "Drink fluids and avoid oily foods.";
-    }
 
-
-
-    if(symptoms.includes("sore throat")){
-
-        disease="Throat Infection";
-        risk="Medium Risk";
-
-        recommendation=
-        "Drink warm water and take proper care.";
-    }
-
-
-
-    if(symptoms.includes("body pain")){
-
-        disease="Body Pain / Fever Related";
-        risk="Medium Risk";
-
-        recommendation=
-        "Take rest and monitor symptoms.";
-    }
-
-
-
-    if(symptoms.includes("fatigue")){
-
-        disease="Fatigue";
-        risk="Low Risk";
-
-        recommendation=
-        "Take adequate sleep and maintain nutrition.";
     }
 
 
@@ -182,22 +154,25 @@ function getRecommendation(){
     // Health Parameter Check
 
 
-    if(temp>38){
+    if(temp > 38){
 
-        risk="High Risk";
-        fever=90;
+        risk = "High Risk";
+        fever = 90;
+
     }
 
 
-    if(sugar>140){
+    if(sugar > 140){
 
-        risk="Medium Risk";
+        risk = "Medium Risk";
+
     }
 
 
     if(bp.includes("140")){
 
-        risk="High Risk";
+        risk = "High Risk";
+
     }
 
 
@@ -205,26 +180,27 @@ function getRecommendation(){
     // Display Result
 
 
-    document.getElementById("risk").innerHTML=risk;
+    document.getElementById("risk").innerHTML = risk;
 
-    document.getElementById("disease").innerHTML=disease;
-
-    document.getElementById("recommendation").innerHTML=
-    "✔ "+recommendation;
+    document.getElementById("disease").innerHTML = disease;
 
 
+    document.getElementById("recommendation").innerHTML =
+    "✔ " + recommendation;
 
-    // Graph Update
 
 
-    document.getElementById("feverBar").style.width=
-    fever+"%";
+    // Graph
 
-    document.getElementById("coldBar").style.width=
-    cold+"%";
+    document.getElementById("feverBar").style.width =
+    fever + "%";
 
-    document.getElementById("respBar").style.width=
-    respiratory+"%";
 
+    document.getElementById("coldBar").style.width =
+    cold + "%";
+
+
+    document.getElementById("respBar").style.width =
+    respiratory + "%";
 
 }
