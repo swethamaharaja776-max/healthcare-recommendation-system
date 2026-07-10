@@ -15,14 +15,14 @@ public class HealthcareController {
 
         if (symptom.contains("fever")) {
             response.put("disease", "Viral Fever");
-            response.put("recommendation", "Take rest and drink plenty of water.");
+            response.put("recommendation", "Drink plenty of water and take rest.");
             response.put("risk", "Moderate");
             response.put("confidence", "90");
         } else {
-            response.put("disease", "Normal");
-            response.put("recommendation", "Stay healthy.");
+            response.put("disease", "Healthy");
+            response.put("recommendation", "Stay healthy!");
             response.put("risk", "Low");
-            response.put("confidence", "95");
+            response.put("confidence", "98");
         }
         return response;
     }
