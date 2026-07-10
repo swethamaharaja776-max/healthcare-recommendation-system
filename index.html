@@ -1,17 +1,22 @@
-<div class="card">
-    <h2>📊 AI Health Dashboard</h2>
-    <p><b>Predicted Disease:</b> <span id="disease">Waiting...</span></p>
-    <p><b>Risk Level:</b> <span id="risk" class="risk-badge">--</span></p>
-    <p><b>AI Confidence:</b> <span id="confidence">--</span></p>
-    <p><b>Recommendation:</b> <span id="recommend">--</span></p>
-</div>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI MedAssist Pro</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+</head>
+<body>
+    <input id="name" placeholder="Name">
+    <input id="age" type="number" placeholder="Age">
+    <input id="symptom" placeholder="Enter Symptoms (e.g. fever)">
+    <button onclick="analyzeHealth()">🔍 Analyze Health</button>
 
-<div class="card">
-    <h2>📄 Patient Report</h2>
-    <p><b>Name:</b> <span id="rname">--</span></p>
-    <p><b>Age:</b> <span id="rage">--</span></p>
-    <p><b>Date:</b> <span id="rdate">--</span></p>
-</div>
+    <p>Disease: <span id="disease">Waiting...</span></p>
+    <p>Confidence: <span id="confidence">--</span></p>
+    <p>Recommendation: <span id="recommend">--</span></p>
 
-<canvas id="probabilityChart" height="100"></canvas>
-<canvas id="trendChart" height="100"></canvas>
+    <canvas id="probabilityChart" width="400" height="200"></canvas>
+    <canvas id="trendChart" width="400" height="200"></canvas>
+
+    <script src="script.js"></script>
+</body>
+</html>
