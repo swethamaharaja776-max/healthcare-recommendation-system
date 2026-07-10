@@ -1,8 +1,8 @@
-// Global chart variables
+// 1. Initialize Global Chart Variables
 let probabilityChart, trendChart;
 
-// Initialize when page loads
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize empty charts when page loads
     initCharts();
 });
 
@@ -12,72 +12,78 @@ function initCharts() {
 
     probabilityChart = new Chart(ctxProb, {
         type: 'bar',
-        data: { labels: ['Disease'], datasets: [{ label: 'Confidence (%)', data: [0], backgroundColor: '#1565c0' }] }
+        data: { labels: ['Diagnosis'], datasets: [{ label: 'Confidence (%)', data: [0], backgroundColor: '#1565c0' }] }
     });
 
     trendChart = new Chart(ctxTrend, {
         type: 'line',
-        data: { labels: [], datasets: [{ label: 'Health Score', data: [], borderColor: '#00897b', fill: false }] }
+        data: { labels: [], datasets: [{ label: 'Health Score', data: [], borderColor: '#00897b', fill: true }] }
     });
 }
 
+// 2. Main Analysis Function
 async function analyzeHealth() {
-    // 1. Update Patient Report Section
+    // A. Update Patient Report Section
     document.getElementById('rname').innerText = document.getElementById('name').value || "--";
     document.getElementById('rage').innerText = document.getElementById('age').value || "--";
     document.getElementById('rgender').innerText = document.getElementById('gender').value || "--";
     document.getElementById('rdate').innerText = new Date().toLocaleString();
 
-    // 2. Fetch data from Spring Boot
-    const symptom = document.getElementById('symptom').value;
-    const response = await fetch('http://localhost:8080/api/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ symptom: symptom })
-    });
-    const data = await response.json();
+    // B. Call Backend
+    const symptomText = document.getElementById('symptom').value;
+    try {
+        const response = await fetch('http://localhost:8080/api/analyze', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ symptom: symptomText })
+        });
+        const data = await response.json();
 
-    // 3. Update Dashboard
-    document.getElementById('disease').innerText = data.disease;
-    document.getElementById('recommend').innerText = data.recommendation;
-    document.getElementById('risk').innerText = data.risk;
-    document.getElementById('confidence').innerText = data.confidence;
-    document.getElementById('score').innerText = "85/100"; // Example score
+        // C. Update Dashboard
+        document.getElementById('disease').innerText = data.disease;
+        document.getElementById('recommend').innerText = data.recommendation;
+        document.getElementById('risk').innerText = data.risk;
+        document.getElementById('risk').className = `risk-badge risk-${data.risk.toLowerCase()}`;
+        document.getElementById('confidence').innerText = data.confidence;
 
-    // 4. Update Probability Chart
-    const confVal = parseInt(data.confidence) || 0;
-    probabilityChart.data.labels = [data.disease];
-    probabilityChart.data.datasets[0].data = [confVal];
+        // D. Update Charts
+        updateCharts(data.disease, parseInt(data.confidence));
+    } catch (err) {
+        alert("Server error! Make sure Spring Boot is running.");
+    }
+}
+
+function updateCharts(disease, conf) {
+    // Update Bar Chart
+    probabilityChart.data.labels = [disease];
+    probabilityChart.data.datasets[0].data = [conf];
     probabilityChart.update();
 
-    // 5. Update Trend Chart
+    // Update Line Chart (Trend)
     trendChart.data.labels.push(new Date().toLocaleTimeString());
-    trendChart.data.datasets[0].data.push(85); 
+    trendChart.data.datasets[0].data.push(conf);
     trendChart.update();
 }
 
-// AI Chat function
-function sendChatMessage() {
-    const chatInput = document.getElementById('chatInput');
-    const messages = document.getElementById('chatMessages');
-    if (chatInput.value.trim() === "") return;
-
-    // Add user message
-    messages.innerHTML += `<div class="chat-msg-user">${chatInput.value}</div>`;
-    
-    // Auto-reply logic
-    setTimeout(() => {
-        messages.innerHTML += `<div class="chat-msg-bot">I am an AI assistant. Based on your inputs, please consult a doctor for accurate diagnosis.</div>`;
-        messages.scrollTop = messages.scrollHeight;
-    }, 500);
-
-    chatInput.value = "";
-}
-
+// 3. Chat Assistant Functions
 function toggleChat() {
     const msg = document.getElementById('chatMessages');
     const input = document.getElementById('chatInputRow');
     const isVisible = msg.style.display === 'block';
     msg.style.display = isVisible ? 'none' : 'block';
     input.style.display = isVisible ? 'none' : 'flex';
+}
+
+function sendChatMessage() {
+    const input = document.getElementById('chatInput');
+    const msgs = document.getElementById('chatMessages');
+    if (!input.value) return;
+    
+    msgs.innerHTML += `<div class="chat-msg-user">${input.value}</div>`;
+    input.value = "";
+    
+    setTimeout(() => {
+        msgs.innerHTML += `<div class="chat-msg-bot">I am your AI assistant. Please consult a doctor for a professional medical diagnosis.</div>`;
+        msgs.scrollTop = msgs.scrollHeight;
+    }, 500);
 }
