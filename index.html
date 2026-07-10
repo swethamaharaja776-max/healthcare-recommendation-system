@@ -5,163 +5,257 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI Powered Healthcare Recommendation System</title>
 
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
 <style>
 *{
     margin:0;
     padding:0;
     box-sizing:border-box;
-    font-family:Arial,sans-serif;
+    font-family:Arial,Helvetica,sans-serif;
 }
+
 body{
-    background:#e8f5e9;
+    background:#f4f8fb;
 }
-.container{
-    width:60%;
-    margin:30px auto;
-    background:#fff;
+
+header{
+    background:#0d6efd;
+    color:white;
     padding:20px;
-    border-radius:10px;
-    box-shadow:0 0 10px rgba(0,0,0,0.2);
-}
-h1{
     text-align:center;
-    color:#0b8457;
+    font-size:28px;
+    font-weight:bold;
+}
+
+.container{
+    width:90%;
+    max-width:1000px;
+    margin:30px auto;
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    box-shadow:0 5px 15px rgba(0,0,0,.2);
+}
+
+h2{
+    text-align:center;
+    color:#0d6efd;
     margin-bottom:20px;
 }
-h2{
-    color:#0b8457;
-    margin-bottom:15px;
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:15px;
 }
+
 label{
     font-weight:bold;
 }
+
 input,select,textarea{
     width:100%;
     padding:10px;
     margin-top:5px;
-    margin-bottom:15px;
     border:1px solid #ccc;
-    border-radius:5px;
+    border-radius:6px;
+    font-size:15px;
 }
+
+textarea{
+    resize:none;
+}
+
+.btn{
+    margin-top:20px;
+    display:flex;
+    gap:10px;
+}
+
 button{
+    flex:1;
     padding:12px;
-    width:100%;
     border:none;
-    border-radius:5px;
-    background:#0b8457;
-    color:white;
+    border-radius:8px;
     font-size:16px;
     cursor:pointer;
 }
-button:hover{
-    background:#066b45;
+
+#getBtn{
+    background:#198754;
+    color:white;
 }
-.resetBtn{
-    background:red;
-    margin-top:10px;
+
+#resetBtn{
+    background:#dc3545;
+    color:white;
 }
-.report{
+
+.card{
     margin-top:25px;
-    padding:15px;
-    background:#f7fff7;
-    border-radius:8px;
-    display:none;
+    padding:20px;
+    border-radius:10px;
+    background:#eef5ff;
 }
+
 .progress{
     width:100%;
+    height:20px;
     background:#ddd;
     border-radius:20px;
+    overflow:hidden;
+    margin-bottom:10px;
 }
+
 .bar{
+    height:100%;
     width:0%;
-    height:20px;
-    background:green;
-    border-radius:20px;
-    color:white;
-    text-align:center;
+    background:#0d6efd;
 }
 </style>
 </head>
 
 <body>
 
-<div class="container">
+<header>
+🤖 AI Powered Healthcare Recommendation System
+</header>
 
-<h1>AI Powered Healthcare Recommendation System</h1>
+<div class="container">
 
 <h2>Patient Details</h2>
 
+<div class="grid">
+
+<div>
 <label>Patient Name</label>
 <input type="text" id="name" placeholder="Enter your name">
+</div>
 
+<div>
 <label>Age</label>
 <input type="number" id="age" placeholder="Enter age">
+</div>
 
+<div>
 <label>Gender</label>
 <select id="gender">
 <option>Male</option>
 <option>Female</option>
 <option>Other</option>
 </select>
+</div>
 
+<div>
 <label>Height (cm)</label>
-<input type="number" id="height" placeholder="170">
+<input type="number" id="height">
+</div>
 
+<div>
 <label>Weight (kg)</label>
-<input type="number" id="weight" placeholder="65">
+<input type="number" id="weight">
+</div>
 
-<label>Blood Pressure (BP)</label>
+<div>
+<label>Blood Pressure</label>
 <input type="text" id="bp" placeholder="120/80">
+</div>
 
+<div>
 <label>Blood Sugar (mg/dL)</label>
-<input type="number" id="sugar" placeholder="110">
+<input type="number" id="sugar">
+</div>
 
+<div>
 <label>Heart Rate (BPM)</label>
-<input type="number" id="heartRate" placeholder="72">
+<input type="number" id="heart">
+</div>
 
+<div>
 <label>Body Temperature (°C)</label>
-<input type="number" id="temperature" step="0.1" placeholder="36.5">
+<input type="number" step="0.1" id="temp">
+</div>
 
+<div style="grid-column:1/3;">
 <label>Problem / Symptoms</label>
-<textarea id="symptom" rows="4"
-placeholder="Example: Fever, Cough"></textarea>
+<textarea id="symptoms" rows="4"
+placeholder="Example: Fever, Cough, Headache"></textarea>
+</div>
 
-<button onclick="getRecommendation()">Get Recommendation</button>
+</div>
 
-<button type="reset" class="resetBtn">Reset</button>
+<div class="btn">
+<button id="getBtn" onclick="getRecommendation()">Get Recommendation</button>
+<button id="resetBtn" onclick="location.reload()">Reset</button>
+</div>
+<!-- Health Report Section -->
 
-    <div class="report" id="report">
+<div class="card">
 
-<h2>Patient Health Report</h2>
+<h2>📊 Health Analysis Report</h2>
 
-<p><b>Patient Name:</b> <span id="patientName">-</span></p>
-<p><b>Age:</b> <span id="patientAge">-</span></p>
-<p><b>Gender:</b> <span id="patientGender">-</span></p>
+<p><b>BMI:</b> <span id="bmi">--</span></p>
 
-<hr>
+<p><b>Health Risk Level:</b>
+<span id="risk">Waiting...</span>
+</p>
 
-<p><b>BMI:</b> <span id="bmi">-</span></p>
+<p><b>AI Prediction:</b>
+<span id="disease">--</span>
+</p>
 
-<p><b>Health Score:</b> <span id="score">-</span></p>
+</div>
 
-<p><b>Possible Disease:</b></p>
-<p id="disease">-</p>
 
-<p><b>Risk Level:</b></p>
-<p id="risk">-</p>
+<div class="card">
 
-<p><b>Recommendation:</b></p>
-<p id="result">-</p>
+<h2>📈 Disease Probability</h2>
 
-<h3>Disease Probability</h3>
-
+<p>Viral Fever</p>
 <div class="progress">
-    <div class="bar" id="graph">0%</div>
+<div class="bar" id="feverBar"></div>
+</div>
+
+<p>Common Cold</p>
+<div class="progress">
+<div class="bar" id="coldBar"></div>
+</div>
+
+<p>Respiratory Infection</p>
+<div class="progress">
+<div class="bar" id="respBar"></div>
 </div>
 
 </div>
 
+
+<div class="card">
+
+<h2>🤖 AI Healthcare Recommendation</h2>
+
+<p id="recommendation">
+Enter symptoms and click Get Recommendation
+</p>
+
 </div>
+
+
+<div class="card">
+
+<h2>📄 Patient Report</h2>
+
+<p><b>Name:</b> <span id="rname">--</span></p>
+<p><b>Age:</b> <span id="rage">--</span></p>
+<p><b>Gender:</b> <span id="rgender">--</span></p>
+<p><b>Date:</b> <span id="date"></span></p>
+
+</div>
+
+
+</div>
+
 
 <script src="script.js"></script>
 
