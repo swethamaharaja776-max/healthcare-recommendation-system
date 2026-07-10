@@ -1,51 +1,169 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>AI Powered Healthcare Recommendation System</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Powered Healthcare Recommendation System</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+body{
+    background:#e8f5e9;
+}
+.container{
+    width:60%;
+    margin:30px auto;
+    background:#fff;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 0 10px rgba(0,0,0,0.2);
+}
+h1{
+    text-align:center;
+    color:#0b8457;
+    margin-bottom:20px;
+}
+h2{
+    color:#0b8457;
+    margin-bottom:15px;
+}
+label{
+    font-weight:bold;
+}
+input,select,textarea{
+    width:100%;
+    padding:10px;
+    margin-top:5px;
+    margin-bottom:15px;
+    border:1px solid #ccc;
+    border-radius:5px;
+}
+button{
+    padding:12px;
+    width:100%;
+    border:none;
+    border-radius:5px;
+    background:#0b8457;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+}
+button:hover{
+    background:#066b45;
+}
+.resetBtn{
+    background:red;
+    margin-top:10px;
+}
+.report{
+    margin-top:25px;
+    padding:15px;
+    background:#f7fff7;
+    border-radius:8px;
+    display:none;
+}
+.progress{
+    width:100%;
+    background:#ddd;
+    border-radius:20px;
+}
+.bar{
+    width:0%;
+    height:20px;
+    background:green;
+    border-radius:20px;
+    color:white;
+    text-align:center;
+}
+</style>
 </head>
+
 <body>
 
-    <h2>AI Powered Healthcare Recommendation System</h2>
+<div class="container">
 
-    <h3>Patient Details</h3>
+<h1>AI Powered Healthcare Recommendation System</h1>
 
-    <form>
+<h2>Patient Details</h2>
 
-        <label>Patient Name:</label><br>
-        <input type="text" id="name" placeholder="Enter your name"><br><br>
+<label>Patient Name</label>
+<input type="text" id="name" placeholder="Enter your name">
 
-        <label>Age:</label><br>
-        <input type="number" id="age" placeholder="Enter your age"><br><br>
+<label>Age</label>
+<input type="number" id="age" placeholder="Enter age">
 
-        <label>Gender:</label><br>
-        <select id="gender">
-            <option>Male</option>
-            <option>Female</option>
-            <option>Other</option>
-        </select><br><br>
+<label>Gender</label>
+<select id="gender">
+<option>Male</option>
+<option>Female</option>
+<option>Other</option>
+</select>
 
-        <label>Weight (kg):</label><br>
-        <input type="number" id="weight" placeholder="Enter weight"><br><br>
+<label>Height (cm)</label>
+<input type="number" id="height" placeholder="170">
 
-        <label>Blood Pressure (BP):</label><br>
-        <input type="text" id="bp" placeholder="120/80"><br><br>
+<label>Weight (kg)</label>
+<input type="number" id="weight" placeholder="65">
 
-        <label>Blood Sugar (mg/dL):</label><br>
-        <input type="number" id="sugar" placeholder="Enter sugar level"><br><br>
+<label>Blood Pressure (BP)</label>
+<input type="text" id="bp" placeholder="120/80">
 
-        <label>Body Temperature (°C):</label><br>
-        <input type="number" id="temperature" step="0.1" placeholder="36.5"><br><br>
+<label>Blood Sugar (mg/dL)</label>
+<input type="number" id="sugar" placeholder="110">
 
-        <label>Problem / Symptoms:</label><br>
-        <textarea id="symptom" rows="4" cols="35" placeholder="Example: Fever, Cough"></textarea><br><br>
+<label>Heart Rate (BPM)</label>
+<input type="number" id="heartRate" placeholder="72">
 
-        <button type="button" onclick="getRecommendation()">Get Recommendation</button>
+<label>Body Temperature (°C)</label>
+<input type="number" id="temperature" step="0.1" placeholder="36.5">
 
-    </form>
+<label>Problem / Symptoms</label>
+<textarea id="symptom" rows="4"
+placeholder="Example: Fever, Cough"></textarea>
 
-    <h3 id="result"></h3>
+<button onclick="getRecommendation()">Get Recommendation</button>
 
-    <script src="script.js"></script>
+<button type="reset" class="resetBtn">Reset</button>
+
+    <div class="report" id="report">
+
+<h2>Patient Health Report</h2>
+
+<p><b>Patient Name:</b> <span id="patientName">-</span></p>
+<p><b>Age:</b> <span id="patientAge">-</span></p>
+<p><b>Gender:</b> <span id="patientGender">-</span></p>
+
+<hr>
+
+<p><b>BMI:</b> <span id="bmi">-</span></p>
+
+<p><b>Health Score:</b> <span id="score">-</span></p>
+
+<p><b>Possible Disease:</b></p>
+<p id="disease">-</p>
+
+<p><b>Risk Level:</b></p>
+<p id="risk">-</p>
+
+<p><b>Recommendation:</b></p>
+<p id="result">-</p>
+
+<h3>Disease Probability</h3>
+
+<div class="progress">
+    <div class="bar" id="graph">0%</div>
+</div>
+
+</div>
+
+</div>
+
+<script src="script.js"></script>
 
 </body>
 </html>
