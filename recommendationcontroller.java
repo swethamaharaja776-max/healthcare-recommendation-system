@@ -1,88 +1,204 @@
+package com.example.healthcare;
+
 import org.springframework.web.bind.annotation.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @CrossOrigin(origins = "*")
-public class Controller {
+@RequestMapping("/api")
+public class HealthcareController {
+
 
     @PostMapping("/recommend")
-    public Map<String, String> recommend(@RequestBody Map<String, String> patient) {
+    public Map<String, Object> getRecommendation(
+            @RequestBody PatientData patient) {
 
-        String symptom = patient.getOrDefault("symptom", "").toLowerCase();
 
-        String disease = "General Checkup";
-        String recommendation = "Maintain a healthy lifestyle and consult a doctor if symptoms continue.";
-        String risk = "Low";
-        String probability = "30%";
+        String symptoms =
+                patient.getSymptoms().toLowerCase();
 
-        if (symptom.contains("fever")) {
+
+        String disease = "Healthy";
+        String risk = "Low Risk";
+
+        String recommendation =
+                "Maintain healthy lifestyle and regular health checkup.";
+
+
+        int feverProbability = 10;
+        int coldProbability = 10;
+        int respiratoryProbability = 10;
+
+
+
+        // Symptom Analysis
+
+
+        if(symptoms.contains("fever")){
+
             disease = "Viral Fever";
-            recommendation = "Drink plenty of water, take adequate rest and consult a doctor if fever continues.";
-            risk = "Medium";
-            probability = "85%";
-        } 
-        else if (symptom.contains("cold")) {
-            disease = "Common Cold";
-            recommendation = "Drink warm water, take proper rest and eat healthy food.";
-            risk = "Low";
-            probability = "75%";
-        } 
-        else if (symptom.contains("cough")) {
-            disease = "Respiratory Infection";
-            recommendation = "Drink warm fluids, avoid cold drinks and consult a doctor if cough persists.";
-            risk = "Medium";
-            probability = "80%";
-        } 
-        else if (symptom.contains("headache")) {
-            disease = "Migraine / Stress";
-            recommendation = "Drink enough water, take proper rest and avoid stress.";
-            risk = "Low";
-            probability = "70%";
-        } 
-        else if (symptom.contains("stomach pain")) {
-            disease = "Gastric Problem";
-            recommendation = "Eat light food, drink enough water and consult a doctor if pain continues.";
-            risk = "Medium";
-            probability = "78%";
-        } 
-        else if (symptom.contains("vomiting")) {
-            disease = "Vomiting";
-            recommendation = "Drink ORS, stay hydrated and visit a doctor if symptoms continue.";
-            risk = "Medium";
-            probability = "82%";
-        } 
-        else if (symptom.contains("diabetes")) {
-            disease = "Diabetes";
-            recommendation = "Monitor blood sugar, exercise regularly and follow your doctor's advice.";
-            risk = "High";
-            probability = "90%";
-        } 
-        else if (symptom.contains("asthma")) {
-            disease = "Asthma";
-            recommendation = "Avoid dust and smoke, use the prescribed inhaler and consult your doctor regularly.";
-            risk = "High";
-            probability = "88%";
-        } 
-        else if (symptom.contains("dengue")) {
-            disease = "Dengue";
-            recommendation = "Drink plenty of fluids, take complete rest and visit a hospital immediately.";
-            risk = "High";
-            probability = "95%";
-        } 
-        else if (symptom.contains("malaria")) {
-            disease = "Malaria";
-            recommendation = "Take prescribed medicine, drink plenty of water and consult a doctor immediately.";
-            risk = "High";
-            probability = "92%";
+            risk = "Medium Risk";
+
+            feverProbability = 85;
+
+            recommendation =
+            "Drink plenty of water, take adequate rest and monitor temperature.";
+
         }
 
-        Map<String, String> response = new HashMap<>();
-        response.put("disease", disease);
-        response.put("recommendation", recommendation);
-        response.put("risk", risk);
-        response.put("probability", probability);
+
+        if(symptoms.contains("cold")){
+
+            disease = "Common Cold";
+            risk = "Medium Risk";
+
+            coldProbability = 80;
+
+            recommendation =
+            "Drink warm fluids and take proper rest.";
+
+        }
+
+
+        if(symptoms.contains("cough")){
+
+            disease = "Respiratory Infection";
+            risk = "Medium Risk";
+
+            respiratoryProbability = 75;
+
+            recommendation =
+            "Avoid cold foods and consult doctor if symptoms continue.";
+
+        }
+
+
+        if(symptoms.contains("headache")){
+
+            disease = "Headache";
+
+            recommendation =
+            "Take rest, stay hydrated and reduce stress.";
+
+        }
+
+
+        if(symptoms.contains("stomach pain")){
+
+            disease = "Digestive Problem";
+            risk = "Medium Risk";
+
+            recommendation =
+            "Eat light food and drink enough water.";
+
+        }
+
+
+        if(symptoms.contains("vomiting")){
+
+            disease = "Gastric Infection";
+            risk = "Medium Risk";
+
+            recommendation =
+            "Drink ORS and maintain hydration.";
+
+        }
+
+
+        if(symptoms.contains("diarrhea")){
+
+            disease = "Food Infection";
+            risk = "Medium Risk";
+
+            recommendation =
+            "Drink fluids and avoid oily foods.";
+
+        }
+
+
+        if(symptoms.contains("sore throat")){
+
+            disease = "Throat Infection";
+            risk = "Medium Risk";
+
+            recommendation =
+            "Drink warm water and take proper care.";
+
+        }
+
+
+        if(symptoms.contains("body pain")){
+
+            disease = "Body Pain";
+
+            risk = "Medium Risk";
+
+            recommendation =
+            "Take adequate rest and monitor symptoms.";
+
+        }
+
+
+
+        if(symptoms.contains("fatigue")){
+
+            disease = "Fatigue";
+
+            recommendation =
+            "Take proper sleep and maintain nutrition.";
+
+        }
+
+
+
+        // Health Parameter Analysis
+
+
+        if(patient.getTemperature() > 38){
+
+            risk = "High Risk";
+            feverProbability = 90;
+
+        }
+
+
+        if(patient.getSugar() > 140){
+
+            risk = "Medium Risk";
+
+        }
+
+
+
+        Map<String,Object> response =
+                new HashMap<>();
+
+
+        response.put("patientName",
+                patient.getName());
+
+        response.put("disease",
+                disease);
+
+        response.put("risk",
+                risk);
+
+        response.put("recommendation",
+                recommendation);
+
+
+        response.put("feverProbability",
+                feverProbability);
+
+        response.put("coldProbability",
+                coldProbability);
+
+        response.put("respiratoryProbability",
+                respiratoryProbability);
+
 
         return response;
+
     }
+
 }
