@@ -1,204 +1,101 @@
-package com.example.healthcare;
+package com.healthcare.controller;
 
 import org.springframework.web.bind.annotation.*;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @CrossOrigin(origins = "*")
 @RequestMapping("/api")
 public class HealthcareController {
 
+    @PostMapping("/analyze")
+    public Map<String, String> analyze(@RequestBody Map<String, String> request) {
 
-    @PostMapping("/recommend")
-    public Map<String, Object> getRecommendation(
-            @RequestBody PatientData patient) {
+        String symptom = request.get("symptom").toLowerCase();
 
-
-        String symptoms =
-                patient.getSymptoms().toLowerCase();
-
+        Map<String, String> response = new HashMap<>();
 
         String disease = "Healthy";
-        String risk = "Low Risk";
+        String recommendation = "Maintain a healthy lifestyle.";
+        String risk = "Low";
+        String confidence = "96%";
 
-        String recommendation =
-                "Maintain healthy lifestyle and regular health checkup.";
-
-
-        int feverProbability = 10;
-        int coldProbability = 10;
-        int respiratoryProbability = 10;
-
-
-
-        // Symptom Analysis
-
-
-        if(symptoms.contains("fever")){
-
+        if (symptom.contains("fever")) {
             disease = "Viral Fever";
-            risk = "Medium Risk";
-
-            feverProbability = 85;
-
-            recommendation =
-            "Drink plenty of water, take adequate rest and monitor temperature.";
-
+            recommendation = "Drink plenty of water, take rest and consult a doctor if fever continues.";
+            risk = "Moderate";
+            confidence = "90%";
         }
 
-
-        if(symptoms.contains("cold")){
-
+        else if (symptom.contains("cold")) {
             disease = "Common Cold";
-            risk = "Medium Risk";
-
-            coldProbability = 80;
-
-            recommendation =
-            "Drink warm fluids and take proper rest.";
-
+            recommendation = "Drink warm water and take adequate rest.";
+            risk = "Low";
+            confidence = "89%";
         }
 
-
-        if(symptoms.contains("cough")){
-
+        else if (symptom.contains("cough")) {
             disease = "Respiratory Infection";
-            risk = "Medium Risk";
-
-            respiratoryProbability = 75;
-
-            recommendation =
-            "Avoid cold foods and consult doctor if symptoms continue.";
-
+            recommendation = "Use warm fluids and consult a doctor if cough persists.";
+            risk = "Moderate";
+            confidence = "87%";
         }
 
-
-        if(symptoms.contains("headache")){
-
-            disease = "Headache";
-
-            recommendation =
-            "Take rest, stay hydrated and reduce stress.";
-
+        else if (symptom.contains("headache")) {
+            disease = "Migraine / Stress";
+            recommendation = "Take enough sleep and drink more water.";
+            risk = "Low";
+            confidence = "88%";
         }
 
-
-        if(symptoms.contains("stomach pain")){
-
-            disease = "Digestive Problem";
-            risk = "Medium Risk";
-
-            recommendation =
-            "Eat light food and drink enough water.";
-
+        else if (symptom.contains("stomach")) {
+            disease = "Gastric Problem";
+            recommendation = "Eat light food and drink plenty of water.";
+            risk = "Moderate";
+            confidence = "86%";
+        }
+                else if (symptom.contains("vomiting")) {
+            disease = "Food Poisoning";
+            recommendation = "Drink ORS, stay hydrated and consult a doctor if vomiting continues.";
+            risk = "High";
+            confidence = "92%";
         }
 
-
-        if(symptoms.contains("vomiting")){
-
-            disease = "Gastric Infection";
-            risk = "Medium Risk";
-
-            recommendation =
-            "Drink ORS and maintain hydration.";
-
+        else if (symptom.contains("diarrhea")) {
+            disease = "Stomach Infection";
+            recommendation = "Drink ORS, avoid spicy foods and stay hydrated.";
+            risk = "High";
+            confidence = "91%";
         }
 
-
-        if(symptoms.contains("diarrhea")){
-
-            disease = "Food Infection";
-            risk = "Medium Risk";
-
-            recommendation =
-            "Drink fluids and avoid oily foods.";
-
-        }
-
-
-        if(symptoms.contains("sore throat")){
-
-            disease = "Throat Infection";
-            risk = "Medium Risk";
-
-            recommendation =
-            "Drink warm water and take proper care.";
-
-        }
-
-
-        if(symptoms.contains("body pain")){
-
+        else if (symptom.contains("body pain")) {
             disease = "Body Pain";
-
-            risk = "Medium Risk";
-
-            recommendation =
-            "Take adequate rest and monitor symptoms.";
-
+            recommendation = "Take proper rest and drink plenty of fluids.";
+            risk = "Low";
+            confidence = "88%";
         }
 
-
-
-        if(symptoms.contains("fatigue")){
-
-            disease = "Fatigue";
-
-            recommendation =
-            "Take proper sleep and maintain nutrition.";
-
+        else if (symptom.contains("fatigue")) {
+            disease = "Weakness";
+            recommendation = "Eat nutritious food, sleep well and drink enough water.";
+            risk = "Low";
+            confidence = "89%";
         }
 
-
-
-        // Health Parameter Analysis
-
-
-        if(patient.getTemperature() > 38){
-
-            risk = "High Risk";
-            feverProbability = 90;
-
+        else if (symptom.contains("sore throat")) {
+            disease = "Throat Infection";
+            recommendation = "Drink warm water and avoid cold drinks.";
+            risk = "Moderate";
+            confidence = "87%";
         }
 
-
-        if(patient.getSugar() > 140){
-
-            risk = "Medium Risk";
-
-        }
-
-
-
-        Map<String,Object> response =
-                new HashMap<>();
-
-
-        response.put("patientName",
-                patient.getName());
-
-        response.put("disease",
-                disease);
-
-        response.put("risk",
-                risk);
-
-        response.put("recommendation",
-                recommendation);
-
-
-        response.put("feverProbability",
-                feverProbability);
-
-        response.put("coldProbability",
-                coldProbability);
-
-        response.put("respiratoryProbability",
-                respiratoryProbability);
-
+        response.put("disease", disease);
+        response.put("recommendation", recommendation);
+        response.put("risk", risk);
+        response.put("confidence", confidence);
 
         return response;
-
     }
-
 }
+        
