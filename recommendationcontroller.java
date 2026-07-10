@@ -4,7 +4,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
 @RestController
-@CrossOrigin(origins = "*") // Crucial for frontend communication
+@CrossOrigin(origins = "*") // Crucial: Allows your HTML to call this API
 @RequestMapping("/api")
 public class HealthcareController {
 
@@ -13,21 +13,17 @@ public class HealthcareController {
         String symptom = request.getOrDefault("symptom", "").toLowerCase();
         Map<String, String> response = new HashMap<>();
 
+        // Logic
         if (symptom.contains("fever")) {
             response.put("disease", "Viral Fever");
             response.put("recommendation", "Take rest and drink plenty of water.");
             response.put("risk", "Moderate");
             response.put("confidence", "90");
-        } else if (symptom.contains("cough")) {
-            response.put("disease", "Respiratory Infection");
-            response.put("recommendation", "Drink warm fluids and consult a doctor.");
-            response.put("risk", "Moderate");
-            response.put("confidence", "87");
         } else {
-            response.put("disease", "General Condition");
-            response.put("recommendation", "Monitor your health and stay hydrated.");
+            response.put("disease", "Healthy");
+            response.put("recommendation", "Keep maintaining a healthy lifestyle.");
             response.put("risk", "Low");
-            response.put("confidence", "95");
+            response.put("confidence", "98");
         }
         return response;
     }
