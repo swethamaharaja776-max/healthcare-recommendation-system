@@ -4,7 +4,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
 @RestController
-@CrossOrigin(origins = "*") // பிரவுசர் இணைப்பை அனுமதிக்க இது மிக முக்கியம்
+@CrossOrigin(origins = "*") // இது இல்லை என்றால் இணைப்பை பிரவுசர் தடுக்கும் (CORS Error)
 @RequestMapping("/api")
 public class HealthcareController {
 
@@ -15,14 +15,14 @@ public class HealthcareController {
 
         if (symptom.contains("fever")) {
             response.put("disease", "Viral Fever");
-            response.put("recommendation", "Drink warm water and take rest.");
+            response.put("recommendation", "Take rest and drink plenty of water.");
             response.put("risk", "Moderate");
             response.put("confidence", "90");
         } else {
-            response.put("disease", "Healthy");
-            response.put("recommendation", "Maintain a balanced diet.");
+            response.put("disease", "Normal");
+            response.put("recommendation", "Keep healthy.");
             response.put("risk", "Low");
-            response.put("confidence", "98");
+            response.put("confidence", "95");
         }
         return response;
     }
