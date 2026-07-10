@@ -5,18 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI MedAssist Pro</title>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-
 <style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
 
 body{
-margin:0;
-font-family:Arial,Helvetica,sans-serif;
 background:#eef5ff;
 }
 
 header{
-background:linear-gradient(90deg,#1565c0,#42a5f5);
+background:#1565c0;
 color:white;
 padding:20px;
 text-align:center;
@@ -24,324 +26,187 @@ text-align:center;
 
 .container{
 width:90%;
-max-width:1200px;
-margin:20px auto;
+margin:auto;
+padding:20px;
 }
 
 .card{
 background:white;
 padding:20px;
 margin-bottom:20px;
-border-radius:12px;
-box-shadow:0 5px 15px rgba(0,0,0,.15);
-}
-
-.card h2{
-color:#1565c0;
-margin-top:0;
+border-radius:10px;
+box-shadow:0 2px 10px rgba(0,0,0,.2);
 }
 
 .grid{
 display:grid;
-grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+grid-template-columns:repeat(2,1fr);
 gap:15px;
 }
 
 input,select,textarea{
-
 width:100%;
 padding:10px;
-margin-top:5px;
 border:1px solid #ccc;
-border-radius:8px;
-font-size:15px;
-
-}
-
-textarea{
-height:70px;
+border-radius:6px;
 }
 
 button{
-
 padding:12px 25px;
 border:none;
-border-radius:8px;
+border-radius:6px;
 cursor:pointer;
-font-size:16px;
-margin:10px;
-
+margin-top:10px;
 }
 
-.btn1{
+.analyze{
 background:#1565c0;
 color:white;
 }
 
-.btn2{
+.reset{
 background:red;
 color:white;
 }
-
-.report{
-
-background:#f7fbff;
-padding:15px;
-border-radius:10px;
-line-height:1.8;
-
-}
-
-.progress{
-
-width:100%;
-background:#ddd;
-height:20px;
-border-radius:10px;
-
-}
-
-.bar{
-
-height:20px;
-width:0%;
-background:green;
-border-radius:10px;
-
-}
-
-footer{
-
-background:#1565c0;
-color:white;
-text-align:center;
-padding:15px;
-
-}
-
 </style>
-
 </head>
 
 <body>
 
 <header>
-
 <h1>🤖 AI MedAssist Pro</h1>
-
-<h3>Intelligent Healthcare Recommendation System</h3>
-
+<p>Intelligent Healthcare Recommendation System</p>
 </header>
 
 <div class="container">
 
 <div class="card">
-
 <h2>👤 Patient Profile</h2>
 
 <div class="grid">
 
 <div>
-
-<label>Patient ID</label>
-
-<input id="pid" readonly>
-
-</div>
-
-<div>
-
 <label>Full Name</label>
-
-<input id="name">
-
+<input id="name" placeholder="Enter Name">
 </div>
 
 <div>
-
 <label>Age</label>
-
 <input id="age" type="number">
-
 </div>
 
 <div>
-
 <label>Gender</label>
-
 <select id="gender">
-
 <option>Male</option>
-
 <option>Female</option>
-
 <option>Other</option>
-
 </select>
-
 </div>
 
 <div>
-
-<label>Contact</label>
-
-<input>
-
+<label>Height (cm)</label>
+<input id="height" type="number">
 </div>
 
 <div>
-
-<label>Date & Time</label>
-
-<input id="date" readonly>
-
-</div>
-
-</div>
-
-</div>
-
-<div class="card">
-
-<h2>❤️ Health Dashboard</h2>
-
-<div class="grid">
-
-<div>
-
-<label>Height(cm)</label>
-
-<input id="height">
-
+<label>Weight (kg)</label>
+<input id="weight" type="number">
 </div>
 
 <div>
-
-<label>Weight(kg)</label>
-
-<input id="weight">
-
-</div>
-
-<div>
-
 <label>BMI</label>
-
 <input id="bmi" readonly>
-
 </div>
-
 <div>
-
 <label>Blood Pressure</label>
-
-<input id="bp">
-
+<input id="bp" placeholder="120/80">
 </div>
 
 <div>
-
-<label>Blood Sugar</label>
-
-<input id="sugar">
-
+<label>Blood Sugar (mg/dL)</label>
+<input id="sugar" type="number">
 </div>
 
 <div>
-
-<label>Heart Rate</label>
-
-<input id="heart">
-
+<label>Heart Rate (BPM)</label>
+<input id="heart" type="number">
 </div>
 
 <div>
-
-<label>Temperature</label>
-
-<input id="temp">
-
+<label>Body Temperature (°C)</label>
+<input id="temp" type="number" step="0.1">
 </div>
 
 <div>
-
-<label>SpO₂</label>
-
-<input id="spo2">
-
+<label>SpO₂ (%)</label>
+<input id="spo2" type="number">
 </div>
 
 </div>
-
 </div>
 
 <div class="card">
-
 <h2>🤒 Smart Symptom Checker</h2>
 
-<textarea id="symptom" placeholder="Enter Symptoms"></textarea>
+<textarea id="symptom"
+placeholder="Example: Fever, Cough, Headache"></textarea>
 
-<center>
+<button class="analyze"
+onclick="analyzeHealth()">
+🔍 Analyze Health
+</button>
 
-<button class="btn1" onclick="analyzeHealth()">🔍 Analyze Health</button>
-
-<button class="btn2" onclick="location.reload()">Reset</button>
-
-</center>
+<button class="reset"
+onclick="location.reload()">
+Reset
+</button>
 
 </div>
 
-<div class="card report">
+<div class="card">
 
 <h2>📊 AI Health Dashboard</h2>
 
-<p><b>Health Score :</b> <span id="score">--</span></p>
+<p><b>Health Score:</b>
+<span id="score">--</span></p>
 
-<div class="progress">
+<p><b>Risk Level:</b>
+<span id="risk">Waiting...</span></p>
 
-<div class="bar" id="bar"></div>
+<p><b>AI Confidence:</b>
+<span id="confidence">--</span></p>
 
-</div>
-
-<p><b>Risk Level :</b> <span id="risk">Waiting...</span></p>
-
-<p><b>AI Confidence :</b> <span id="confidence">--</span></p>
-
-<p><b>Predicted Disease :</b></p>
+<p><b>Predicted Disease:</b></p>
 
 <p id="disease">Waiting...</p>
 
-<p><b>Recommendation :</b></p>
+<p><b>Recommendation:</b></p>
 
-<p id="recommend">Enter symptoms...</p>
+<p id="recommend">
+Enter symptoms and click Analyze Health
+</p>
+
+</div>
+  <div class="card">
+
+<h2>📄 Patient Report</h2>
+
+<p><b>Name:</b> <span id="rname">--</span></p>
+<p><b>Age:</b> <span id="rage">--</span></p>
+<p><b>Gender:</b> <span id="rgender">--</span></p>
+<p><b>Date:</b> <span id="rdate">--</span></p>
+
+<button onclick="window.print()" class="analyze">
+🖨 Print Report
+</button>
 
 </div>
 
-<div class="card report">
-
-<h2>📄 Smart Medical Report</h2>
-
-<p>Name : <span id="rname">--</span></p>
-
-<p>Age : <span id="rage">--</span></p>
-
-<p>Gender : <span id="rgender">--</span></p>
-
-<p>Date : <span id="rdate">--</span></p>
-
-<button class="btn1" onclick="window.print()">🖨 Print Report</button>
-
 </div>
-
-</div>
-
-<footer>
-
-AI MedAssist Pro © 2026
-
-</footer>
 
 <script src="script.js"></script>
 
 </body>
 </html>
+
