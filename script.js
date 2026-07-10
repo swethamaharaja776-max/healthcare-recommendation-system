@@ -1,36 +1,139 @@
-let probChart;
+let chart;
 
-// சார்ட் உருவாக்க
-document.addEventListener('DOMContentLoaded', () => {
-    probChart = new Chart(document.getElementById('probabilityChart').getContext('2d'), {
-        type: 'bar',
-        data: { labels: ['Diagnosis'], datasets: [{ label: 'Confidence (%)', data: [0], backgroundColor: '#1565c0' }] }
-    });
+
+window.onload=function(){
+
+
+let ctx=document
+.getElementById("probabilityChart")
+.getContext("2d");
+
+
+chart=new Chart(ctx,{
+
+type:"bar",
+
+data:{
+
+labels:["Disease Probability"],
+
+datasets:[{
+
+label:"Confidence %",
+
+data:[0]
+
+}]
+
+},
+
+options:{
+
+scales:{
+
+y:{
+beginAtZero:true,
+max:100
+}
+
+}
+
+}
+
 });
 
-async function analyzeHealth() {
-    const symp = document.getElementById('symptom').value;
 
-    try {
-        const response = await fetch('http://localhost:8080/api/analyze', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ symptom: symp })
-        });
-        
-        if (!response.ok) throw new Error("Server error");
-        const data = await response.json();
+}
 
-        // UI-ஐ அப்டேட் செய்ய
-        document.getElementById('disease').innerText = data.disease;
-        document.getElementById('confidence').innerText = data.confidence + "%";
-        document.getElementById('recommend').innerText = data.recommendation;
 
-        // சார்ட்டை அப்டேட் செய்ய
-        probChart.data.datasets[0].data = [parseInt(data.confidence)];
-        probChart.update();
-        
-    } catch (e) {
-        alert("Failed! Spring Boot சர்வர் '8080' போர்ட்டில் ரன் ஆகிறதா எனப் பார்க்கவும்.");
-    }
+
+
+
+async function analyzeHealth(){
+
+
+let symptom=document
+.getElementById("symptom")
+.value;
+
+
+
+if(symptom==""){
+alert("Enter symptoms");
+return;
+}
+
+
+
+try{
+
+
+let response=await fetch(
+"http://localhost:8080/api/analyze",
+{
+
+method:"POST",
+
+headers:{
+
+"Content-Type":"application/json"
+
+},
+
+
+body:JSON.stringify({
+
+symptom:symptom
+
+})
+
+
+});
+
+
+
+let data=await response.json();
+
+
+
+document.getElementById("disease")
+.innerHTML=data.disease;
+
+
+document.getElementById("confidence")
+.innerHTML=data.confidence+"%";
+
+
+document.getElementById("risk")
+.innerHTML=data.risk;
+
+
+
+document.getElementById("recommend")
+.innerHTML=data.recommendation;
+
+
+
+chart.data.datasets[0].data=[
+Number(data.confidence)
+];
+
+
+chart.update();
+
+
+
+}
+
+catch(error){
+
+console.log(error);
+
+alert(
+"Spring Boot server not running"
+);
+
+}
+
+
 }
