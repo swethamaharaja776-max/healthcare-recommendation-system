@@ -12,9 +12,17 @@ public class HealthcareController {
     @PostMapping("/analyze")
     public Map<String, String> analyze(@RequestBody Map<String, String> request) {
 
-        String symptom = request.get("symptom").toLowerCase();
+        String symptom = request.getOrDefault("symptom", "").toLowerCase();
 
         Map<String, String> response = new HashMap<>();
+
+        if (symptom.isBlank()) {
+            response.put("disease", "Unknown");
+            response.put("recommendation", "Please enter symptoms.");
+            response.put("risk", "Unknown");
+            response.put("confidence", "0%");
+            return response;
+        }
 
         String disease = "Healthy";
         String recommendation = "Maintain a healthy lifestyle.";
@@ -23,7 +31,7 @@ public class HealthcareController {
 
         if (symptom.contains("fever")) {
             disease = "Viral Fever";
-            recommendation = "Drink plenty of water, take rest and consult a doctor if fever continues.";
+            recommendation = "Drink plenty of water, take proper rest and consult a doctor if fever continues.";
             risk = "Moderate";
             confidence = "90%";
         }
@@ -37,25 +45,26 @@ public class HealthcareController {
 
         else if (symptom.contains("cough")) {
             disease = "Respiratory Infection";
-            recommendation = "Use warm fluids and consult a doctor if cough persists.";
+            recommendation = "Drink warm fluids and consult a doctor if cough persists.";
             risk = "Moderate";
             confidence = "87%";
         }
 
         else if (symptom.contains("headache")) {
             disease = "Migraine / Stress";
-            recommendation = "Take enough sleep and drink more water.";
+            recommendation = "Take enough sleep, drink more water and reduce stress.";
             risk = "Low";
             confidence = "88%";
         }
 
         else if (symptom.contains("stomach")) {
             disease = "Gastric Problem";
-            recommendation = "Eat light food and drink plenty of water.";
+            recommendation = "Eat light food, drink plenty of water and avoid oily foods.";
             risk = "Moderate";
             confidence = "86%";
         }
-                else if (symptom.contains("vomiting")) {
+
+        else if (symptom.contains("vomiting")) {
             disease = "Food Poisoning";
             recommendation = "Drink ORS, stay hydrated and consult a doctor if vomiting continues.";
             risk = "High";
@@ -98,4 +107,3 @@ public class HealthcareController {
         return response;
     }
 }
-        
