@@ -1,43 +1,60 @@
 let probChart, trendChart;
 
-// Initialize Charts
 document.addEventListener('DOMContentLoaded', () => {
-    probChart = new Chart(document.getElementById('probabilityChart'), {
+    // Canvas context-ai vanga '2d' nu kooda serthu koodunga
+    const probCtx = document.getElementById('probabilityChart').getContext('2d');
+    const trendCtx = document.getElementById('trendChart').getContext('2d');
+
+    probChart = new Chart(probCtx, {
         type: 'bar',
-        data: { labels: ['Confidence'], datasets: [{ label: 'Percentage', data: [0], backgroundColor: '#1565c0' }] }
+        data: { 
+            labels: ['Diagnosis'], 
+            datasets: [{ label: 'Confidence (%)', data: [0], backgroundColor: '#1565c0' }] 
+        },
+        options: { responsive: true }
     });
-    trendChart = new Chart(document.getElementById('trendChart'), {
+
+    trendChart = new Chart(trendCtx, {
         type: 'line',
-        data: { labels: [], datasets: [{ label: 'Score', data: [], borderColor: '#00897b' }] }
+        data: { 
+            labels: [], 
+            datasets: [{ label: 'Trend', data: [], borderColor: '#00897b', fill: false }] 
+        },
+        options: { responsive: true }
     });
 });
 
 async function analyzeHealth() {
-    // 1. Get Values
-    const name = document.getElementById('name').value;
-    const age = document.getElementById('age').value;
-    const symptom = document.getElementById('symptom').value;
+    const symp = document.getElementById('symptom').value;
+    if (!symp) { alert("Please enter a symptom!"); return; }
 
-    // 2. Update Report Section
-    document.getElementById('rname').innerText = name || "--";
-    document.getElementById('rage').innerText = age || "--";
-    document.getElementById('rdate').innerText = new Date().toLocaleString();
+    try {
+        const response = await fetch('http://localhost:8080/api/analyze', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ symptom: symp })
+        });
+        
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
 
-    // 3. Call API
-    const response = await fetch('http://localhost:8080/api/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ symptom: symptom })
-    });
-    const data = await response.json();
+        // Update UI
+        document.getElementById('disease').innerText = data.disease;
+        document.getElementById('confidence').innerText = data.confidence + "%";
+        document.getElementById('recommend').innerText = data.recommendation;
 
-    // 4. Update Dashboard
-    document.getElementById('disease').innerText = data.disease;
-    document.getElementById('risk').innerText = data.risk;
-    document.getElementById('confidence').innerText = data.confidence + "%";
-    document.getElementById('recommend').innerText = data.recommendation;
-
-    // 5. Update Charts
-    probChart.data.datasets[0].data = [parseInt(data.confidence)];
-    probChart.update();
+        // Update Bar Chart
+        probChart.data.labels = [data.disease];
+        probChart.data.datasets[0].data = [parseInt(data.confidence)];
+        probChart.update();
+        
+        // Update Line Chart
+        trendChart.data.labels.push(new Date().toLocaleTimeString());
+        trendChart.data.datasets[0].data.push(parseInt(data.confidence));
+        trendChart.update();
+        
+    } catch (e) {
+        console.error("Error details:", e);
+        alert("Failed to connect! Check if Spring Boot is running on 8080.");
+    }
 }
