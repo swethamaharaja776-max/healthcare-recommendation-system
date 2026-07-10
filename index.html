@@ -1,56 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>AI MedAssist Pro</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
-    <style>
-        body { font-family: Arial, sans-serif; background: #eef5ff; padding: 20px; }
-        .card { background: white; padding: 20px; margin-bottom: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        input, select { width: 100%; padding: 8px; margin-top: 5px; }
-        button { padding: 10px 20px; cursor: pointer; background: #1565c0; color: white; border: none; border-radius: 5px; }
-        canvas { max-width: 100%; height: 200px; }
-    </style>
-</head>
-<body>
+<div class="card">
+    <h2>📊 AI Health Dashboard</h2>
+    <p><b>Predicted Disease:</b> <span id="disease">Waiting...</span></p>
+    <p><b>Risk Level:</b> <span id="risk" class="risk-badge">--</span></p>
+    <p><b>AI Confidence:</b> <span id="confidence">--</span></p>
+    <p><b>Recommendation:</b> <span id="recommend">--</span></p>
+</div>
 
-    <h1>🤖 AI MedAssist Pro</h1>
+<div class="card">
+    <h2>📄 Patient Report</h2>
+    <p><b>Name:</b> <span id="rname">--</span></p>
+    <p><b>Age:</b> <span id="rage">--</span></p>
+    <p><b>Date:</b> <span id="rdate">--</span></p>
+</div>
 
-    <div class="card">
-        <h2>👤 Patient Profile</h2>
-        <div class="grid">
-            <input id="name" placeholder="Full Name">
-            <input id="age" type="number" placeholder="Age">
-            <select id="gender"><option>Male</option><option>Female</option></select>
-            <input id="height" type="number" placeholder="Height (cm)">
-            <input id="weight" type="number" placeholder="Weight (kg)">
-        </div>
-        <br>
-        <input id="symptom" placeholder="Enter Symptoms (e.g., Fever, Cough)">
-        <button onclick="analyzeHealth()">🔍 Analyze Health</button>
-    </div>
-
-    <div class="card">
-        <h2>📊 AI Health Dashboard</h2>
-        <p><b>Predicted Disease:</b> <span id="disease">Waiting...</span></p>
-        <p><b>AI Confidence:</b> <span id="confidence">--</span></p>
-    </div>
-
-    <div class="card">
-        <h2>📊 Charts</h2>
-        <canvas id="probabilityChart"></canvas>
-        <canvas id="trendChart"></canvas>
-    </div>
-
-    <div class="card">
-        <h2>📄 Patient Report</h2>
-        <p>Name: <span id="rname">--</span></p>
-        <p>Age: <span id="rage">--</span></p>
-        <p>Gender: <span id="rgender">--</span></p>
-        <p>Date: <span id="rdate">--</span></p>
-    </div>
-
-    <script src="script.js"></script>
-</body>
-</html>
+<canvas id="probabilityChart" height="100"></canvas>
+<canvas id="trendChart" height="100"></canvas>
