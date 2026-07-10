@@ -5,17 +5,21 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 </head>
 <body>
+    <h1>AI MedAssist Pro</h1>
     <input id="name" placeholder="Name">
     <input id="age" type="number" placeholder="Age">
     <input id="symptom" placeholder="Enter Symptoms (e.g. fever)">
     <button onclick="analyzeHealth()">🔍 Analyze Health</button>
 
+    <h3>Dashboard</h3>
     <p>Disease: <span id="disease">Waiting...</span></p>
     <p>Confidence: <span id="confidence">--</span></p>
     <p>Recommendation: <span id="recommend">--</span></p>
 
-    <canvas id="probabilityChart" width="400" height="200"></canvas>
-    <canvas id="trendChart" width="400" height="200"></canvas>
+    <div style="width: 400px;">
+        <canvas id="probabilityChart"></canvas>
+        <canvas id="trendChart"></canvas>
+    </div>
 
     <script src="script.js"></script>
 </body>
