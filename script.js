@@ -1,117 +1,90 @@
 function getRecommendation() {
 
+    let name = document.getElementById("name").value;
+    let age = document.getElementById("age").value;
+    let gender = document.getElementById("gender").value;
+    let height = document.getElementById("height").value;
+    let weight = document.getElementById("weight").value;
+    let bp = document.getElementById("bp").value;
+    let sugar = document.getElementById("sugar").value;
+    let heartRate = document.getElementById("heartRate").value;
+    let temperature = document.getElementById("temperature").value;
     let symptom = document.getElementById("symptom").value.toLowerCase();
-    let result = "";
 
-    if (symptom.includes("fever")) {
-        result = `
-        <h3>Patient Health Report</h3>
-        <b>Possible Disease:</b> Viral Fever<br><br>
-        <b>Recommendation:</b><br>
-        ✓ Drink plenty of water.<br>
-        ✓ Take adequate rest.<br>
-        ✓ Consult a doctor if fever continues.<br>
-        `;
-
-    } else if (symptom.includes("cold")) {
-        result = `
-        <h3>Patient Health Report</h3>
-        <b>Possible Disease:</b> Common Cold<br><br>
-        <b>Recommendation:</b><br>
-        ✓ Drink warm water.<br>
-        ✓ Take proper rest.<br>
-        ✓ Eat healthy food.<br>
-        `;
-
-    } else if (symptom.includes("cough")) {
-        result = `
-        <h3>Patient Health Report</h3>
-        <b>Possible Disease:</b> Cough<br><br>
-        <b>Recommendation:</b><br>
-        ✓ Drink warm fluids.<br>
-        ✓ Avoid cold drinks.<br>
-        ✓ Consult a doctor if it lasts more than a week.<br>
-        `;
-
-    } else if (symptom.includes("headache")) {
-        result = `
-        <h3>Patient Health Report</h3>
-        <b>Possible Disease:</b> Headache<br><br>
-        <b>Recommendation:</b><br>
-        ✓ Drink enough water.<br>
-        ✓ Take proper rest.<br>
-        ✓ Avoid stress.<br>
-        `;
-
-    } else if (symptom.includes("stomach pain")) {
-        result = `
-        <h3>Patient Health Report</h3>
-        <b>Possible Disease:</b> Stomach Pain<br><br>
-        <b>Recommendation:</b><br>
-        ✓ Eat light food.<br>
-        ✓ Drink enough water.<br>
-        ✓ Consult a doctor if pain continues.<br>
-        `;
-
-    } else if (symptom.includes("vomiting")) {
-        result = `
-        <h3>Patient Health Report</h3>
-        <b>Possible Disease:</b> Vomiting<br><br>
-        <b>Recommendation:</b><br>
-        ✓ Drink ORS.<br>
-        ✓ Stay hydrated.<br>
-        ✓ Visit a doctor if symptoms continue.<br>
-        `;
-
-    } else if (symptom.includes("diabetes")) {
-        result = `
-        <h3>Patient Health Report</h3>
-        <b>Possible Disease:</b> Diabetes<br><br>
-        <b>Recommendation:</b><br>
-        ✓ Monitor blood sugar.<br>
-        ✓ Exercise daily.<br>
-        ✓ Follow your doctor's advice.<br>
-        `;
-
-    } else if (symptom.includes("asthma")) {
-        result = `
-        <h3>Patient Health Report</h3>
-        <b>Possible Disease:</b> Asthma<br><br>
-        <b>Recommendation:</b><br>
-        ✓ Avoid dust and smoke.<br>
-        ✓ Use prescribed inhaler.<br>
-        ✓ Consult a doctor regularly.<br>
-        `;
-
-    } else if (symptom.includes("dengue")) {
-        result = `
-        <h3>Patient Health Report</h3>
-        <b>Possible Disease:</b> Dengue<br><br>
-        <b>Recommendation:</b><br>
-        ✓ Drink plenty of fluids.<br>
-        ✓ Take complete rest.<br>
-        ✓ Visit a hospital immediately.<br>
-        `;
-
-    } else if (symptom.includes("malaria")) {
-        result = `
-        <h3>Patient Health Report</h3>
-        <b>Possible Disease:</b> Malaria<br><br>
-        <b>Recommendation:</b><br>
-        ✓ Take prescribed medicine.<br>
-        ✓ Drink plenty of water.<br>
-        ✓ Consult a doctor immediately.<br>
-        `;
-
-    } else {
-        result = `
-        <h3>Patient Health Report</h3>
-        <b>No matching disease found.</b><br><br>
-        Please enter a valid symptom such as:<br>
-        fever, cold, cough, headache, stomach pain,
-        vomiting, diabetes, asthma, dengue or malaria.
-        `;
+    if(name=="" || age=="" || height=="" || weight=="" || symptom==""){
+        alert("Please fill all required fields");
+        return;
     }
 
-    document.getElementById("result").innerHTML = result;
+    // Show Report
+    document.getElementById("report").style.display="block";
+
+    // Patient Details
+    document.getElementById("patientName").innerHTML=name;
+    document.getElementById("patientAge").innerHTML=age;
+    document.getElementById("patientGender").innerHTML=gender;
+
+    // BMI
+    let h = height / 100;
+    let bmi = (weight / (h*h)).toFixed(1);
+    document.getElementById("bmi").innerHTML=bmi;
+
+    // Health Score
+    let score = 100;
+
+    if(sugar > 140) score -= 10;
+    if(temperature > 37.5) score -= 10;
+    if(heartRate > 100) score -= 10;
+
+    document.getElementById("score").innerHTML=score+"/100";
+
+    // Disease Prediction
+    let disease="General Checkup";
+    let recommendation="Stay Healthy.";
+    let risk="Low";
+    let probability=30;
+
+    if(symptom.includes("fever")){
+        disease="Viral Fever";
+        recommendation="Drink plenty of water, take rest and consult a doctor if fever continues.";
+        risk="Medium";
+        probability=85;
+    }
+
+    if(symptom.includes("cold")){
+        disease="Common Cold";
+        recommendation="Drink warm water and take adequate rest.";
+        risk="Low";
+        probability=75;
+    }
+
+    if(symptom.includes("cough")){
+        disease="Respiratory Infection";
+        recommendation="Drink warm fluids and consult a doctor if cough persists.";
+        risk="Medium";
+        probability=80;
+    }
+
+    if(symptom.includes("headache")){
+        disease="Migraine / Stress";
+        recommendation="Take proper rest and stay hydrated.";
+        risk="Low";
+        probability=70;
+    }
+
+    if(symptom.includes("stomach")){
+        disease="Gastric Problem";
+        recommendation="Eat light food and drink enough water.";
+        risk="Medium";
+        probability=78;
+    }
+
+    document.getElementById("disease").innerHTML=disease;
+    document.getElementById("risk").innerHTML=risk;
+    document.getElementById("result").innerHTML=recommendation;
+
+    // Graph
+    let graph=document.getElementById("graph");
+    graph.style.width=probability+"%";
+    graph.innerHTML=probability+"%";
 }
