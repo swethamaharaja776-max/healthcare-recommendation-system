@@ -79,6 +79,7 @@ const DISEASE_RULES = [
 function computeHealthScore(v) {
   let score = 100;
   if (v.temp > 37.8) score -= Math.min(20, (v.temp - 37.8) * 8);
+  if (v.temp < 36) score -= Math.min(25, (36 - v.temp) * 8); // hypothermia penalty
   if (v.hr > 100 || v.hr < 55) score -= 10;
   if (v.spo2 < 95) score -= 15;
   if (v.sugar > 140 || v.sugar < 70) score -= 10;
@@ -174,13 +175,15 @@ function runAnalysis() {
     probability: 0.3
   };
 
-  const healthScore = computeHealthScore(vitals);
+  let healthScore = computeHealthScore(vitals);
   let risk = riskFromScore(healthScore);
   let recommendation = top.recommendation;
   let confidence = Math.round(60 + top.probability * 35);
 
   if (extreme) {
     // Extreme vitals override the symptom-based match: safety first.
+    // Cap the score too, so it doesn't contradict the High risk label.
+    healthScore = Math.min(healthScore, 40);
     risk = "High";
     confidence = Math.max(confidence, 85);
     recommendation = "⚠ One or more vital signs are in a dangerous range. Seek immediate medical attention rather than relying on this app. " + top.recommendation;
