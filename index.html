@@ -114,6 +114,7 @@
     padding: 9px 10px; border-radius: 8px; font-size: 0.88rem;
   }
   input:focus, select:focus{ outline: none; border-color: var(--teal); }
+  input::placeholder{ color: #5a7d79; font-style: italic; opacity: 0.7; }
 
   .profile-top{ display:flex; gap:18px; align-items:center; margin-bottom: 18px; flex-wrap: wrap; }
   #avatarPreview{
@@ -603,12 +604,32 @@ function followUpSuggestion(risk) {
 }
 
 function runAnalysis() {
+  const rawFields = {
+    temp: document.getElementById("p_temp").value,
+    hr: document.getElementById("p_hr").value,
+    spo2: document.getElementById("p_spo2").value,
+    sugar: document.getElementById("p_sugar").value,
+    bp: document.getElementById("p_bp").value
+  };
+
+  const fieldLabels = {
+    temp: "Body Temperature (°C)", hr: "Heart Rate (BPM)",
+    spo2: "SpO₂ (%)", sugar: "Blood Sugar (mg/dL)", bp: "Blood Pressure"
+  };
+  const missing = Object.keys(rawFields).filter(k => rawFields[k] === "" || rawFields[k] === null);
+  if (missing.length > 0) {
+    alert("These fields are still empty (the numbers you see are just examples, not entered values):\n\n" +
+      missing.map(k => "- " + fieldLabels[k]).join("\n") +
+      "\n\nPlease click into each field and type the actual reading.");
+    return;
+  }
+
   const vitals = {
-    temp: parseFloat(document.getElementById("p_temp").value) || 37,
-    hr: parseFloat(document.getElementById("p_hr").value) || 75,
-    spo2: parseFloat(document.getElementById("p_spo2").value) || 98,
-    sugar: parseFloat(document.getElementById("p_sugar").value) || 90,
-    bp: document.getElementById("p_bp").value || "120/80"
+    temp: parseFloat(rawFields.temp),
+    hr: parseFloat(rawFields.hr),
+    spo2: parseFloat(rawFields.spo2),
+    sugar: parseFloat(rawFields.sugar),
+    bp: rawFields.bp
   };
 
   if (selectedSymptoms.size === 0) {
