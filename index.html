@@ -512,7 +512,8 @@ const LAB_TEST_MAP = {
   "Gastroenteritis": ["Stool routine exam", "Electrolyte panel"],
   "Possible Respiratory Distress": ["Chest X-ray", "Pulse oximetry", "ECG", "Troponin (if chest pain)"],
   "Allergic Reaction": ["Allergy panel (IgE)", "Skin prick test"],
-  "Non-specific Illness": ["Routine CBC", "Consult physician for tailored tests"]
+  "Non-specific Illness": ["Routine CBC", "Consult physician for tailored tests"],
+  "⚠ Critical Vital Sign Alert": ["Emergency vitals monitoring", "ECG", "Blood gas analysis", "Immediate physician evaluation"]
 };
 
 const VITAL_RANGES = {
@@ -603,6 +604,21 @@ function followUpSuggestion(risk) {
   return `Suggested follow-up: ${urgency}. Target date: ${suggested.toLocaleDateString()}`;
 }
 
+function extremeReasons(vitals) {
+  const reasons = [];
+  if (vitals.temp >= EXTREME_THRESHOLDS.tempHigh) reasons.push("dangerously high body temperature (hyperthermia)");
+  if (vitals.temp <= EXTREME_THRESHOLDS.tempLow) reasons.push("dangerously low body temperature (hypothermia)");
+  if (vitals.spo2 <= EXTREME_THRESHOLDS.spo2Low) reasons.push("low blood oxygen level (SpO₂)");
+  if (vitals.hr >= EXTREME_THRESHOLDS.hrHigh) reasons.push("dangerously high heart rate");
+  if (vitals.hr <= EXTREME_THRESHOLDS.hrLow) reasons.push("dangerously low heart rate");
+  const bp = parseBP(vitals.bp);
+  if (bp) {
+    if (bp.systolic >= EXTREME_THRESHOLDS.systolicHigh || bp.diastolic >= EXTREME_THRESHOLDS.diastolicHigh) reasons.push("hypertensive crisis (blood pressure)");
+    if (bp.systolic <= EXTREME_THRESHOLDS.systolicLow) reasons.push("dangerously low blood pressure");
+  }
+  return reasons;
+}
+
 function runAnalysis() {
   const rawFields = {
     temp: document.getElementById("p_temp").value,
@@ -656,11 +672,16 @@ function runAnalysis() {
   let recommendation = top.recommendation;
   let confidence = Math.round(60 + top.probability * 35);
 
+  let diseaseName = top.name;
   if (extreme) {
+    const reasons = extremeReasons(vitals);
     healthScore = Math.min(healthScore, 40);
     risk = "High";
-    confidence = Math.max(confidence, 85);
-    recommendation = "⚠ One or more vital signs are in a dangerous range. Seek immediate medical attention rather than relying on this app. " + top.recommendation;
+    confidence = 95;
+    diseaseName = "⚠ Critical Vital Sign Alert";
+    recommendation = `Abnormal reading detected: ${reasons.join(", ")}. Seek immediate medical attention — ` +
+      `this is outside the safe range and cannot be reliably matched to a routine condition by this demo tool. ` +
+      `(Symptom-based pattern also noted: ${top.name}.)`;
   }
 
   const bmiInfo = calcBMI();
@@ -672,7 +693,7 @@ function runAnalysis() {
     vitals,
     bmi: bmiInfo,
     symptoms: Array.from(selectedSymptoms),
-    disease: top.name,
+    disease: diseaseName,
     recommendation,
     healthScore,
     risk,
