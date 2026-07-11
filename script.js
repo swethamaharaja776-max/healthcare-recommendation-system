@@ -116,7 +116,8 @@ const LAB_TEST_MAP = {
   "Gastroenteritis": ["Stool routine exam", "Electrolyte panel"],
   "Possible Respiratory Distress": ["Chest X-ray", "Pulse oximetry", "ECG", "Troponin (if chest pain)"],
   "Allergic Reaction": ["Allergy panel (IgE)", "Skin prick test"],
-  "Non-specific Illness": ["Routine CBC", "Consult physician for tailored tests"]
+  "Non-specific Illness": ["Routine CBC", "Consult physician for tailored tests"],
+  "⚠ Critical Vital Sign Alert": ["Emergency vitals monitoring", "ECG", "Blood gas analysis", "Immediate physician evaluation"]
 };
 
 const VITAL_RANGES = {
@@ -207,13 +208,48 @@ function followUpSuggestion(risk) {
   return `Suggested follow-up: ${urgency}. Target date: ${suggested.toLocaleDateString()}`;
 }
 
+function extremeReasons(vitals) {
+  const reasons = [];
+  if (vitals.temp >= EXTREME_THRESHOLDS.tempHigh) reasons.push("dangerously high body temperature (hyperthermia)");
+  if (vitals.temp <= EXTREME_THRESHOLDS.tempLow) reasons.push("dangerously low body temperature (hypothermia)");
+  if (vitals.spo2 <= EXTREME_THRESHOLDS.spo2Low) reasons.push("low blood oxygen level (SpO₂)");
+  if (vitals.hr >= EXTREME_THRESHOLDS.hrHigh) reasons.push("dangerously high heart rate");
+  if (vitals.hr <= EXTREME_THRESHOLDS.hrLow) reasons.push("dangerously low heart rate");
+  const bp = parseBP(vitals.bp);
+  if (bp) {
+    if (bp.systolic >= EXTREME_THRESHOLDS.systolicHigh || bp.diastolic >= EXTREME_THRESHOLDS.diastolicHigh) reasons.push("hypertensive crisis (blood pressure)");
+    if (bp.systolic <= EXTREME_THRESHOLDS.systolicLow) reasons.push("dangerously low blood pressure");
+  }
+  return reasons;
+}
+
 function runAnalysis() {
+  const rawFields = {
+    temp: document.getElementById("p_temp").value,
+    hr: document.getElementById("p_hr").value,
+    spo2: document.getElementById("p_spo2").value,
+    sugar: document.getElementById("p_sugar").value,
+    bp: document.getElementById("p_bp").value
+  };
+
+  const fieldLabels = {
+    temp: "Body Temperature (°C)", hr: "Heart Rate (BPM)",
+    spo2: "SpO₂ (%)", sugar: "Blood Sugar (mg/dL)", bp: "Blood Pressure"
+  };
+  const missing = Object.keys(rawFields).filter(k => rawFields[k] === "" || rawFields[k] === null);
+  if (missing.length > 0) {
+    alert("These fields are still empty (the numbers you see are just examples, not entered values):\n\n" +
+      missing.map(k => "- " + fieldLabels[k]).join("\n") +
+      "\n\nPlease click into each field and type the actual reading.");
+    return;
+  }
+
   const vitals = {
-    temp: parseFloat(document.getElementById("p_temp").value) || 37,
-    hr: parseFloat(document.getElementById("p_hr").value) || 75,
-    spo2: parseFloat(document.getElementById("p_spo2").value) || 98,
-    sugar: parseFloat(document.getElementById("p_sugar").value) || 90,
-    bp: document.getElementById("p_bp").value || "120/80"
+    temp: parseFloat(rawFields.temp),
+    hr: parseFloat(rawFields.hr),
+    spo2: parseFloat(rawFields.spo2),
+    sugar: parseFloat(rawFields.sugar),
+    bp: rawFields.bp
   };
 
   if (selectedSymptoms.size === 0) {
@@ -240,11 +276,16 @@ function runAnalysis() {
   let recommendation = top.recommendation;
   let confidence = Math.round(60 + top.probability * 35);
 
+  let diseaseName = top.name;
   if (extreme) {
+    const reasons = extremeReasons(vitals);
     healthScore = Math.min(healthScore, 40);
     risk = "High";
-    confidence = Math.max(confidence, 85);
-    recommendation = "⚠ One or more vital signs are in a dangerous range. Seek immediate medical attention rather than relying on this app. " + top.recommendation;
+    confidence = 95;
+    diseaseName = "⚠ Critical Vital Sign Alert";
+    recommendation = `Abnormal reading detected: ${reasons.join(", ")}. Seek immediate medical attention — ` +
+      `this is outside the safe range and cannot be reliably matched to a routine condition by this demo tool. ` +
+      `(Symptom-based pattern also noted: ${top.name}.)`;
   }
 
   const bmiInfo = calcBMI();
@@ -256,7 +297,7 @@ function runAnalysis() {
     vitals,
     bmi: bmiInfo,
     symptoms: Array.from(selectedSymptoms),
-    disease: top.name,
+    disease: diseaseName,
     recommendation,
     healthScore,
     risk,
