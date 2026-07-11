@@ -16,9 +16,18 @@
     --teal-dim: #1a7f76;
     --coral: #ff6b5b;
     --amber: #f2b84b;
+    --green: #3fd17d;
     --ink: #eaf6f4;
     --ink-dim: #9fc4bf;
     --mono: 'Courier New', Consolas, monospace;
+  }
+  body.light{
+    --bg: #f2f7f6;
+    --panel: #ffffff;
+    --panel-2: #eef6f5;
+    --line: #d7e6e3;
+    --ink: #10262a;
+    --ink-dim: #4c6a67;
   }
   *{box-sizing:border-box;}
   body{
@@ -29,11 +38,37 @@
       var(--bg);
     color: var(--ink);
     padding-bottom: 60px;
+    transition: background 0.2s ease, color 0.2s ease;
   }
+
+  /* ---------- Login overlay ---------- */
+  #loginOverlay{
+    position: fixed; inset: 0;
+    background: var(--bg);
+    display:flex; align-items:center; justify-content:center;
+    z-index: 999;
+    padding: 20px;
+  }
+  .login-card{
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 32px 28px;
+    width: 100%;
+    max-width: 360px;
+    text-align:center;
+  }
+  .login-card h2{ margin: 0 0 4px; }
+  .login-card p.sub{ color: var(--ink-dim); font-size: 0.8rem; margin: 0 0 20px; }
+  .login-card input{ margin-bottom: 12px; }
+  .login-card .hint{ font-size: 0.7rem; color: var(--ink-dim); margin-top: 10px; font-family: var(--mono); }
+  #loginError{ color: var(--coral); font-size: 0.78rem; min-height: 16px; margin-top: 4px; }
+
   header.site{
-    padding: 28px 24px 20px;
+    padding: 20px 24px 16px;
     border-bottom: 1px solid var(--line);
     display:flex; align-items:center; gap:16px;
+    flex-wrap: wrap;
   }
   .pulse-dot{
     width:14px;height:14px;border-radius:50%;
@@ -47,26 +82,18 @@
     70%{box-shadow:0 0 0 12px rgba(41,198,183,0);}
     100%{box-shadow:0 0 0 0 rgba(41,198,183,0);}
   }
-  header.site h1{
-    margin:0; font-size: 1.5rem; letter-spacing: 0.5px;
-    font-weight: 700;
-  }
+  header.site h1{ margin:0; font-size: 1.4rem; letter-spacing: 0.5px; font-weight: 700; }
   header.site .eyebrow{
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    color: var(--teal);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    display:block;
-    margin-bottom: 2px;
+    font-family: var(--mono); font-size: 0.7rem; color: var(--teal);
+    letter-spacing: 2px; text-transform: uppercase; display:block; margin-bottom: 2px;
   }
-  main{
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 24px;
-    display: grid;
-    gap: 20px;
+  .header-right{ margin-left:auto; display:flex; gap:10px; align-items:center; }
+  .icon-btn{
+    background: transparent; border: 1px solid var(--line); color: var(--ink);
+    padding: 8px 12px; border-radius: 8px; cursor:pointer; font-size: 0.8rem;
   }
+
+  main{ max-width: 1100px; margin: 0 auto; padding: 20px; display: grid; gap: 18px; }
   .card{
     background: linear-gradient(180deg, var(--panel), var(--panel-2));
     border: 1px solid var(--line);
@@ -74,167 +101,145 @@
     padding: 20px 22px;
   }
   .card h2{
-    margin: 0 0 16px;
-    font-size: 1.02rem;
-    display:flex; align-items:center; gap:8px;
-    color: var(--ink);
+    margin: 0 0 16px; font-size: 1rem; display:flex; align-items:center; gap:8px; color: var(--ink);
   }
   .card h2 .tag{
-    font-family: var(--mono);
-    font-size: 0.68rem;
-    color: var(--teal);
-    border: 1px solid var(--teal-dim);
-    padding: 2px 8px;
-    border-radius: 20px;
-    letter-spacing: 1px;
+    font-family: var(--mono); font-size: 0.66rem; color: var(--teal);
+    border: 1px solid var(--teal-dim); padding: 2px 8px; border-radius: 20px; letter-spacing: 1px;
   }
-  .grid-2{
-    display:grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 14px;
-  }
-  label{
-    display:block;
-    font-size: 0.72rem;
-    color: var(--ink-dim);
-    margin-bottom: 5px;
-    letter-spacing: 0.4px;
-  }
+  .grid-2{ display:grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; }
+  label{ display:block; font-size: 0.7rem; color: var(--ink-dim); margin-bottom: 5px; letter-spacing: 0.4px; }
   input, select{
-    width:100%;
-    background: #0b1a1c;
-    border: 1px solid var(--line);
-    color: var(--ink);
-    padding: 9px 10px;
-    border-radius: 8px;
-    font-size: 0.9rem;
+    width:100%; background: var(--bg); border: 1px solid var(--line); color: var(--ink);
+    padding: 9px 10px; border-radius: 8px; font-size: 0.88rem;
   }
-  input:focus, select:focus{
-    outline: none;
-    border-color: var(--teal);
+  input:focus, select:focus{ outline: none; border-color: var(--teal); }
+
+  .profile-top{ display:flex; gap:18px; align-items:center; margin-bottom: 18px; flex-wrap: wrap; }
+  #avatarPreview{
+    width: 76px; height: 76px; border-radius: 50%; object-fit: cover;
+    border: 2px solid var(--teal-dim); background: var(--bg);
   }
-  .symptom-list{
-    display:flex; flex-wrap: wrap; gap: 8px;
-    margin-top: 4px;
-  }
+  .avatar-btn{ font-size: 0.76rem; }
+
+  .symptom-list{ display:flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
   .symptom-chip{
-    font-size: 0.82rem;
-    padding: 7px 13px;
-    border-radius: 20px;
-    border: 1px solid var(--line);
-    background: #0b1a1c;
-    color: var(--ink-dim);
-    cursor:pointer;
-    user-select:none;
-    transition: all 0.15s ease;
+    font-size: 0.8rem; padding: 7px 13px; border-radius: 20px; border: 1px solid var(--line);
+    background: var(--bg); color: var(--ink-dim); cursor:pointer; user-select:none; transition: all 0.15s ease;
   }
-  .symptom-chip.active{
-    background: rgba(41,198,183,0.15);
-    border-color: var(--teal);
-    color: var(--teal);
-  }
-  .actions{
-    display:flex; gap: 10px; margin-top: 18px; flex-wrap: wrap;
-  }
+  .symptom-chip.active{ background: rgba(41,198,183,0.15); border-color: var(--teal); color: var(--teal); }
+
+  .actions{ display:flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
   button{
-    font-family: inherit;
-    font-size: 0.85rem;
-    font-weight: 600;
-    padding: 10px 18px;
-    border-radius: 8px;
-    border: 1px solid var(--teal-dim);
-    background: var(--teal);
-    color: #052625;
-    cursor: pointer;
-    letter-spacing: 0.3px;
+    font-family: inherit; font-size: 0.84rem; font-weight: 600; padding: 10px 16px;
+    border-radius: 8px; border: 1px solid var(--teal-dim); background: var(--teal);
+    color: #052625; cursor: pointer; letter-spacing: 0.3px;
   }
-  button.secondary{
-    background: transparent;
-    color: var(--ink);
-    border-color: var(--line);
-  }
-  button.ghost{
-    background: transparent;
-    color: var(--teal);
-    border-color: var(--teal-dim);
-  }
+  button.secondary{ background: transparent; color: var(--ink); border-color: var(--line); }
+  button.ghost{ background: transparent; color: var(--teal); border-color: var(--teal-dim); }
   button:hover{ filter: brightness(1.08); }
   button:disabled{ opacity: 0.45; cursor: not-allowed; }
 
   #dashboard{ display:none; }
-  .score-row{
-    display:grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px,1fr));
-    gap: 14px;
-    margin-bottom: 18px;
-  }
-  .stat{
-    background:#0b1a1c;
-    border:1px solid var(--line);
-    border-radius: 10px;
-    padding: 14px;
-  }
-  .stat .num{ font-family: var(--mono); font-size: 1.6rem; font-weight:700; }
-  .stat .lbl{ font-size: 0.72rem; color: var(--ink-dim); margin-top:2px; }
-  .risk-low{ color:#3fd17d; }
-  .risk-moderate{ color: var(--amber); }
-  .risk-high{ color: var(--coral); }
+  .score-row{ display:grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: 12px; margin-bottom: 16px; }
+  .stat{ background: var(--bg); border:1px solid var(--line); border-radius: 10px; padding: 14px; }
+  .stat .num{ font-family: var(--mono); font-size: 1.5rem; font-weight:700; }
+  .stat .lbl{ font-size: 0.7rem; color: var(--ink-dim); margin-top:2px; }
+
+  .risk-badge{ display:inline-flex; align-items:center; gap:6px; }
+  .risk-badge .dot{ width:10px; height:10px; border-radius:50%; }
+  .risk-low{ color:#3fd17d; } .risk-low .dot{ background:#3fd17d; }
+  .risk-moderate{ color: var(--amber); } .risk-moderate .dot{ background: var(--amber); }
+  .risk-high{ color: var(--coral); } .risk-high .dot{ background: var(--coral); }
 
   .diagnosis-box{
-    border-left: 3px solid var(--teal);
-    background: rgba(41,198,183,0.06);
-    padding: 14px 16px;
-    border-radius: 0 8px 8px 0;
-    margin-bottom: 16px;
+    border-left: 3px solid var(--teal); background: rgba(41,198,183,0.06);
+    padding: 14px 16px; border-radius: 0 8px 8px 0; margin-bottom: 16px;
   }
-  .diagnosis-box .disease{
-    font-size: 1.15rem; font-weight: 700; color: var(--teal); margin-bottom: 4px;
-  }
-  .diagnosis-box .rec{ font-size: 0.88rem; color: var(--ink-dim); line-height: 1.5; }
+  .diagnosis-box .disease{ font-size: 1.1rem; font-weight: 700; color: var(--teal); margin-bottom: 4px; }
+  .diagnosis-box .rec{ font-size: 0.86rem; color: var(--ink-dim); line-height: 1.5; }
 
   canvas{ max-width: 100%; }
 
+  .subgrid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: 16px; }
+  .mini-card{ background: var(--bg); border:1px solid var(--line); border-radius: 10px; padding: 14px; }
+  .mini-card h3{ margin:0 0 10px; font-size: 0.85rem; color: var(--ink); }
+  .mini-list{ list-style:none; margin:0; padding:0; font-size: 0.82rem; color: var(--ink-dim); }
+  .mini-list li{ padding: 5px 0; border-bottom: 1px dashed var(--line); }
+  .mini-list li:last-child{ border-bottom:none; }
+
+  .timeline{ list-style:none; margin:0; padding:0; }
+  .timeline li{
+    border-left: 2px solid var(--teal-dim); padding: 6px 0 6px 14px; margin-bottom: 8px; font-size: 0.82rem; color: var(--ink-dim);
+  }
+  .timeline li b{ color: var(--ink); }
+
   #chatLog{
-    height: 220px;
-    overflow-y:auto;
-    background:#0b1a1c;
-    border:1px solid var(--line);
-    border-radius:10px;
-    padding: 12px;
-    font-size: 0.86rem;
-    display:flex; flex-direction:column; gap:10px;
+    height: 220px; overflow-y:auto; background: var(--bg); border:1px solid var(--line);
+    border-radius:10px; padding: 12px; font-size: 0.86rem; display:flex; flex-direction:column; gap:10px;
   }
   .msg{ max-width: 80%; padding: 8px 12px; border-radius: 10px; line-height:1.4; }
-  .msg.bot{ background: #123634; align-self:flex-start; color: var(--ink); }
+  .msg.bot{ background: rgba(41,198,183,0.12); align-self:flex-start; color: var(--ink); }
   .msg.user{ background: var(--teal-dim); align-self:flex-end; color: #eafffb; }
   .chat-input-row{ display:flex; gap: 8px; margin-top: 10px; }
   .chat-input-row input{ flex:1; }
-
-  #reportArea{ font-size: 0.88rem; color: var(--ink-dim); line-height: 1.7; }
-  #reportArea b{ color: var(--ink); }
-
-  .disclaimer{
-    font-size: 0.72rem;
-    color: var(--ink-dim);
-    border-top: 1px dashed var(--line);
-    margin-top: 16px;
-    padding-top: 10px;
+  .quick-q{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
+  .quick-q span{
+    font-size: 0.72rem; border:1px solid var(--line); padding: 5px 10px; border-radius: 14px;
+    cursor:pointer; color: var(--ink-dim);
   }
 
+  #reportArea{ font-size: 0.86rem; color: var(--ink-dim); line-height: 1.7; }
+  #reportArea b{ color: var(--ink); }
+  .disclaimer{ font-size: 0.7rem; color: var(--ink-dim); border-top: 1px dashed var(--line); margin-top: 16px; padding-top: 10px; }
+
   @media print{
-    header.site, .actions, #chatCard, .disclaimer-noprint{ display:none !important; }
+    header.site, .actions, #chatCard, .no-print{ display:none !important; }
     body{ background:white; color:black; }
     .card{ border:1px solid #ccc; background:white; }
+  }
+
+  @media (max-width: 560px){
+    header.site{ padding: 16px; }
+    header.site h1{ font-size: 1.15rem; }
+    main{ padding: 14px; gap: 14px; }
+    .card{ padding: 16px; }
+    .actions{ flex-direction: column; }
+    .actions button{ width: 100%; }
+    .score-row{ grid-template-columns: 1fr 1fr; }
+    .profile-top{ flex-direction: column; align-items: flex-start; }
   }
 </style>
 </head>
 <body>
 
+<!-- ================= LOGIN ================= -->
+<div id="loginOverlay">
+  <div class="login-card">
+    <span class="eyebrow" style="color:var(--teal);font-family:var(--mono);font-size:0.68rem;letter-spacing:2px;">SECURE ACCESS</span>
+    <h2>AI MedAssist Pro</h2>
+    <p class="sub">Sign in to continue</p>
+    <input id="loginUser" type="text" placeholder="Username" />
+    <input id="loginPass" type="password" placeholder="Password" />
+    <div id="loginError"></div>
+    <div class="actions" style="justify-content:center;">
+      <button id="loginBtn">Login</button>
+      <button id="guestBtn" class="secondary">Continue as Guest</button>
+    </div>
+    <div class="hint">Demo credentials: admin / medassist123</div>
+  </div>
+</div>
+
+<!-- ================= APP ================= -->
 <header class="site">
   <div class="pulse-dot"></div>
   <div>
     <span class="eyebrow">Intelligent Healthcare Recommendation System</span>
     <h1>AI MedAssist Pro</h1>
+  </div>
+  <div class="header-right">
+    <button class="icon-btn" id="darkModeToggle">🌙 Dark Mode</button>
+    <button class="icon-btn" id="logoutBtn">Logout</button>
   </div>
 </header>
 
@@ -243,13 +248,18 @@
   <!-- PATIENT PROFILE -->
   <section class="card">
     <h2>Patient Profile <span class="tag">INPUT</span></h2>
+    <div class="profile-top">
+      <img id="avatarPreview" src="https://api.dicebear.com/7.x/initials/svg?seed=Patient" alt="avatar" />
+      <div>
+        <label>Patient Photo / Avatar</label>
+        <input type="file" id="avatarInput" accept="image/*" class="avatar-btn" />
+      </div>
+    </div>
     <div class="grid-2">
       <div><label>Full Name</label><input id="p_name" type="text" placeholder="e.g. Swetha" /></div>
       <div><label>Age</label><input id="p_age" type="number" placeholder="18" /></div>
       <div><label>Gender</label>
-        <select id="p_gender">
-          <option>Female</option><option>Male</option><option>Other</option>
-        </select>
+        <select id="p_gender"><option>Female</option><option>Male</option><option>Other</option></select>
       </div>
       <div><label>Height (cm)</label><input id="p_height" type="number" placeholder="150" /></div>
       <div><label>Weight (kg)</label><input id="p_weight" type="number" placeholder="45" /></div>
@@ -258,6 +268,10 @@
       <div><label>Heart Rate (BPM)</label><input id="p_hr" type="number" placeholder="90" /></div>
       <div><label>Body Temperature (°C)</label><input id="p_temp" type="number" step="0.1" placeholder="38.5" /></div>
       <div><label>SpO₂ (%)</label><input id="p_spo2" type="number" placeholder="100" /></div>
+    </div>
+    <div class="mini-card" style="margin-top:16px;">
+      <h3>🩺 BMI Calculator</h3>
+      <div id="bmiResult" style="font-size:0.88rem;color:var(--ink-dim);">Enter height & weight to calculate BMI.</div>
     </div>
   </section>
 
@@ -287,19 +301,41 @@
   <!-- DASHBOARD -->
   <section class="card" id="dashboard">
     <h2>AI Health Dashboard <span class="tag">RESULT</span></h2>
-
     <div class="score-row">
       <div class="stat"><div class="num" id="healthScore">--</div><div class="lbl">Health Score / 100</div></div>
-      <div class="stat"><div class="num" id="riskLevel">--</div><div class="lbl">Risk Level</div></div>
+      <div class="stat"><div class="num risk-badge" id="riskLevel"><span class="dot"></span><span id="riskText">--</span></div><div class="lbl">Risk Level</div></div>
       <div class="stat"><div class="num" id="aiConfidence">--</div><div class="lbl">AI Confidence</div></div>
     </div>
-
     <div class="diagnosis-box">
       <div class="disease" id="predictedDisease">--</div>
       <div class="rec" id="recommendationText">--</div>
     </div>
-
     <canvas id="probChart" height="120"></canvas>
+
+    <div class="subgrid" style="margin-top:18px;">
+      <div class="mini-card">
+        <h3>📅 Follow-up Appointment Suggestion</h3>
+        <div id="followupText" style="font-size:0.85rem;color:var(--ink-dim);">--</div>
+      </div>
+      <div class="mini-card">
+        <h3>🧪 Recommended Lab Tests</h3>
+        <ul class="mini-list" id="labTestList"></ul>
+      </div>
+      <div class="mini-card">
+        <h3>📍 Nearby Hospitals</h3>
+        <div style="font-size:0.82rem;color:var(--ink-dim);margin-bottom:10px;">Demo: opens a maps search using your location.</div>
+        <button id="hospitalBtn" class="ghost" style="width:100%;">Find Nearby Hospitals</button>
+      </div>
+      <div class="mini-card">
+        <h3>💊 Medicine Reminder (Demo)</h3>
+        <div style="display:flex;gap:6px;margin-bottom:8px;">
+          <input id="medName" type="text" placeholder="Medicine name" />
+          <input id="medMinutes" type="number" placeholder="mins" style="width:70px;" />
+        </div>
+        <button id="addReminderBtn" class="ghost" style="width:100%;">Set Reminder</button>
+        <ul class="mini-list" id="reminderList" style="margin-top:8px;"></ul>
+      </div>
+    </div>
 
     <div class="actions">
       <button id="downloadPdfBtn" class="ghost">📄 Download PDF Report</button>
@@ -309,10 +345,21 @@
     <div id="saveStatus" style="font-size:0.78rem;color:var(--ink-dim);margin-top:8px;"></div>
   </section>
 
-  <!-- TREND GRAPH -->
+  <!-- TREND GRAPHS -->
   <section class="card" id="trendCard" style="display:none;">
     <h2>Health Trend Graph <span class="tag">HISTORY</span></h2>
     <canvas id="trendChart" height="110"></canvas>
+  </section>
+
+  <section class="card" id="vitalsTrendCard" style="display:none;">
+    <h2>Vital Signs Trend <span class="tag">HR · TEMP · SpO₂</span></h2>
+    <canvas id="vitalsTrendChart" height="110"></canvas>
+  </section>
+
+  <!-- MEDICAL HISTORY TIMELINE -->
+  <section class="card" id="historyCard" style="display:none;">
+    <h2>Medical History Timeline <span class="tag">LOG</span></h2>
+    <ul class="timeline" id="historyTimeline"></ul>
   </section>
 
   <!-- REPORT -->
@@ -328,6 +375,12 @@
   <!-- CHAT ASSISTANT -->
   <section class="card" id="chatCard">
     <h2>AI Chat Assistant <span class="tag">BETA</span></h2>
+    <div class="quick-q">
+      <span data-q="What does my health score mean?">Health score?</span>
+      <span data-q="What should I eat when sick?">Diet tips?</span>
+      <span data-q="When should I see a doctor?">See a doctor?</span>
+      <span data-q="How accurate is this AI?">How accurate?</span>
+    </div>
     <div id="chatLog">
       <div class="msg bot">Hi! I'm your health assistant. Ask me about your symptoms, diet tips, or how to read your report.</div>
     </div>
@@ -342,4 +395,3 @@
 <script src="script.js"></script>
 </body>
 </html>
-
