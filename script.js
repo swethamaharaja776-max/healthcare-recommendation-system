@@ -5,12 +5,7 @@
 
 const BACKEND_SAVE_URL = "/api/savePatient";
 const BACKEND_HISTORY_URL = "/api/patientHistory";
-const BACKEND_LOGIN_URL = "/api/login";
-
-// Fallback demo credentials used ONLY when the Java/MySQL backend
-// isn't reachable (e.g. testing index.html directly in a browser).
-// This is NOT secure — it's a placeholder so the demo still runs standalone.
-const DEMO_CREDENTIALS = { username: "admin", password: "medassist123" };
+const BACKEND_LOGIN_URL = "/api/login"; // kept for reference; not used in open demo-login mode
 
 let selectedSymptoms = new Set();
 let lastResult = null;
@@ -24,34 +19,21 @@ const sessionHistory = [];
 const reminders = [];
 
 /* ===================== LOGIN ===================== */
+// Demo mode: any non-empty username + password is accepted.
+// (No real backend check — this is intentionally open for project demo purposes.)
 async function attemptLogin(username, password) {
-  try {
-    const res = await fetch(BACKEND_LOGIN_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password })
-    });
-    if (res.ok) {
-      const data = await res.json();
-      return data.status === "ok";
-    }
-    throw new Error("bad status");
-  } catch (e) {
-    // Backend not reachable -> fall back to demo credential check
-    return username === DEMO_CREDENTIALS.username && password === DEMO_CREDENTIALS.password;
-  }
+  return username.trim().length > 0 && password.trim().length > 0;
 }
 
 document.getElementById("loginBtn").addEventListener("click", async () => {
   const u = document.getElementById("loginUser").value.trim();
   const p = document.getElementById("loginPass").value;
   const errEl = document.getElementById("loginError");
-  errEl.textContent = "Checking...";
   const ok = await attemptLogin(u, p);
   if (ok) {
     document.getElementById("loginOverlay").style.display = "none";
   } else {
-    errEl.textContent = "Invalid username or password.";
+    errEl.textContent = "Please enter both a username and a password.";
   }
 });
 
