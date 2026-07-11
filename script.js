@@ -103,6 +103,48 @@ function matchDiseases(symptomSet) {
   return results;
 }
 
+// Physiologically plausible ranges. Anything outside this is almost
+// certainly a typo/sensor error, not a real reading, so we block analysis
+// and ask the user to recheck instead of quietly producing a result.
+const VITAL_RANGES = {
+  temp:  { min: 30, max: 42.5, label: "Body Temperature (°C)" },
+  hr:    { min: 30, max: 220,  label: "Heart Rate (BPM)" },
+  spo2:  { min: 50, max: 100,  label: "SpO₂ (%)" },
+  sugar: { min: 20, max: 600,  label: "Blood Sugar (mg/dL)" }
+};
+
+// Thresholds beyond which a reading is "real but dangerous" and should
+// force High risk regardless of what the symptom-matching engine finds.
+const EXTREME_THRESHOLDS = {
+  tempHigh: 40,   // °C, high fever territory
+  tempLow: 35,    // °C, hypothermia territory
+  spo2Low: 92,    // % - clinically low oxygen
+  hrHigh: 150,
+  hrLow: 40
+};
+
+function validateVitals(vitals) {
+  const errors = [];
+  for (const key of ["temp", "hr", "spo2", "sugar"]) {
+    const range = VITAL_RANGES[key];
+    const val = vitals[key];
+    if (val < range.min || val > range.max) {
+      errors.push(`${range.label} of ${val} looks out of range (expected ${range.min}–${range.max}). Please recheck the value.`);
+    }
+  }
+  return errors;
+}
+
+function isExtremeVitals(vitals) {
+  return (
+    vitals.temp >= EXTREME_THRESHOLDS.tempHigh ||
+    vitals.temp <= EXTREME_THRESHOLDS.tempLow ||
+    vitals.spo2 <= EXTREME_THRESHOLDS.spo2Low ||
+    vitals.hr >= EXTREME_THRESHOLDS.hrHigh ||
+    vitals.hr <= EXTREME_THRESHOLDS.hrLow
+  );
+}
+
 function runAnalysis() {
   const vitals = {
     temp: parseFloat(document.getElementById("p_temp").value) || 37,
@@ -117,6 +159,14 @@ function runAnalysis() {
     return;
   }
 
+  const validationErrors = validateVitals(vitals);
+  if (validationErrors.length > 0) {
+    alert("Please recheck these values before analyzing:\n\n" + validationErrors.join("\n"));
+    return;
+  }
+
+  const extreme = isExtremeVitals(vitals);
+
   const ranked = matchDiseases(selectedSymptoms);
   const top = ranked[0].probability > 0 ? ranked[0] : {
     name: "Non-specific Illness",
@@ -125,8 +175,16 @@ function runAnalysis() {
   };
 
   const healthScore = computeHealthScore(vitals);
-  const risk = riskFromScore(healthScore);
-  const confidence = Math.round(60 + top.probability * 35);
+  let risk = riskFromScore(healthScore);
+  let recommendation = top.recommendation;
+  let confidence = Math.round(60 + top.probability * 35);
+
+  if (extreme) {
+    // Extreme vitals override the symptom-based match: safety first.
+    risk = "High";
+    confidence = Math.max(confidence, 85);
+    recommendation = "⚠ One or more vital signs are in a dangerous range. Seek immediate medical attention rather than relying on this app. " + top.recommendation;
+  }
 
   lastResult = {
     name: document.getElementById("p_name").value || "Unnamed Patient",
@@ -135,11 +193,12 @@ function runAnalysis() {
     vitals,
     symptoms: Array.from(selectedSymptoms),
     disease: top.name,
-    recommendation: top.recommendation,
+    recommendation,
     healthScore,
     risk,
     confidence,
     ranked,
+    extreme,
     timestamp: new Date()
   };
 
