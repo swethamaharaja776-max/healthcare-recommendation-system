@@ -631,7 +631,31 @@ const NB_MODEL = {
   "Allergic Reaction": { prior: 0.14, likelihood: { Fever: 0.08, Cough: 0.15, Headache: 0.10, "Sore Throat": 0.10, Fatigue: 0.30, "Body Pain": 0.05, Nausea: 0.08, "Shortness of Breath": 0.20, "Chest Pain": 0.05, Diarrhea: 0.05, "Skin Rash": 0.80, Dizziness: 0.10 } }
 };
 
-function naiveBayesPredict(symptomSet) {
+// Vital-sign-derived evidence, used ALONGSIDE symptoms in the Bayes update.
+// This is what makes measured vitals (e.g. a 39.6°C fever) actually move the
+// prediction, even if the matching symptom checkbox wasn't ticked.
+const VITAL_FEATURE_UNIVERSE = ["HighFever", "LowSpO2", "HighHR", "AbnormalSugar"];
+const VITAL_FEATURE_LIKELIHOOD = {
+  "Viral Fever":                    { HighFever: 0.90, LowSpO2: 0.05, HighHR: 0.30, AbnormalSugar: 0.10 },
+  "Common Cold":                    { HighFever: 0.15, LowSpO2: 0.03, HighHR: 0.10, AbnormalSugar: 0.05 },
+  "Influenza (Flu)":                { HighFever: 0.80, LowSpO2: 0.10, HighHR: 0.35, AbnormalSugar: 0.10 },
+  "Migraine":                       { HighFever: 0.05, LowSpO2: 0.03, HighHR: 0.15, AbnormalSugar: 0.08 },
+  "Gastroenteritis":                { HighFever: 0.35, LowSpO2: 0.03, HighHR: 0.20, AbnormalSugar: 0.15 },
+  "Possible Respiratory Distress":  { HighFever: 0.40, LowSpO2: 0.55, HighHR: 0.55, AbnormalSugar: 0.10 },
+  "Allergic Reaction":              { HighFever: 0.10, LowSpO2: 0.15, HighHR: 0.20, AbnormalSugar: 0.05 }
+};
+
+function getVitalFeatures(vitals) {
+  return {
+    HighFever: vitals.temp > 38.5,
+    LowSpO2: vitals.spo2 < 95,
+    HighHR: vitals.hr > 100,
+    AbnormalSugar: vitals.sugar > 140 || vitals.sugar < 70
+  };
+}
+
+function naiveBayesPredict(symptomSet, vitals) {
+  const vitalFeatures = getVitalFeatures(vitals);
   const diseaseNames = Object.keys(NB_MODEL);
   const logScores = diseaseNames.map(name => {
     const model = NB_MODEL[name];
@@ -639,6 +663,14 @@ function naiveBayesPredict(symptomSet) {
     SYMPTOM_UNIVERSE.forEach(s => {
       const p = model.likelihood[s] ?? 0.1;
       const present = symptomSet.has(s);
+      logProb += Math.log(present ? p : (1 - p));
+    });
+    // Fold in measured vitals as additional independent evidence, so a real
+    // fever/low SpO2/etc. shifts the prediction even without a matching symptom tick.
+    const vModel = VITAL_FEATURE_LIKELIHOOD[name];
+    VITAL_FEATURE_UNIVERSE.forEach(f => {
+      const p = vModel[f] ?? 0.1;
+      const present = vitalFeatures[f];
       logProb += Math.log(present ? p : (1 - p));
     });
     return logProb;
@@ -781,6 +813,8 @@ function isExtremeVitals(vitals) {
 
 function generatePredictionExplanation(topDisease, symptomSet, vitals) {
   const model = NB_MODEL[topDisease.name];
+  const vModel = VITAL_FEATURE_LIKELIHOOD[topDisease.name];
+  const vFeatures = getVitalFeatures(vitals);
   const factors = [];
   if (model) {
     SYMPTOM_UNIVERSE.forEach(s => {
@@ -789,14 +823,24 @@ function generatePredictionExplanation(topDisease, symptomSet, vitals) {
       }
     });
   }
-  const vitalNotes = [];
-  if (vitals.temp > 37.8) vitalNotes.push(`elevated temperature (${vitals.temp}°C)`);
-  if (vitals.temp < 36) vitalNotes.push(`low temperature (${vitals.temp}°C)`);
-  if (vitals.hr > 100 || vitals.hr < 55) vitalNotes.push(`abnormal heart rate (${vitals.hr} bpm)`);
-  if (vitals.spo2 < 95) vitalNotes.push(`reduced SpO₂ (${vitals.spo2}%)`);
-  if (vitals.sugar > 140 || vitals.sugar < 70) vitalNotes.push(`abnormal blood sugar (${vitals.sugar} mg/dL)`);
-  if (vitalNotes.length > 0) factors.push(`Vitals also contributed to the risk score: ${vitalNotes.join(", ")}.`);
-  if (factors.length === 0) factors.push(`No single symptom strongly dominated — this was the closest statistical match (${Math.round(topDisease.probability * 100)}%) among the modeled conditions given everything you entered.`);
+  // Vital signs are used as evidence in the prediction itself (not just the
+  // health score) — call out when a measured vital pushed the diagnosis.
+  if (vModel) {
+    const VITAL_DESCRIPTIONS = {
+      HighFever: `elevated temperature (${vitals.temp}°C)`,
+      LowSpO2: `reduced SpO₂ (${vitals.spo2}%)`,
+      HighHR: `elevated heart rate (${vitals.hr} bpm)`,
+      AbnormalSugar: `abnormal blood sugar (${vitals.sugar} mg/dL)`
+    };
+    VITAL_FEATURE_UNIVERSE.forEach(f => {
+      if (vFeatures[f] && vModel[f] >= 0.5) {
+        factors.push(`Measured ${VITAL_DESCRIPTIONS[f]} is strongly associated with ${topDisease.name} (~${Math.round(vModel[f] * 100)}% likelihood) and was factored into the prediction itself, not just the risk score.`);
+      } else if (vFeatures[f] && vModel[f] < 0.2) {
+        factors.push(`Note: measured ${VITAL_DESCRIPTIONS[f]} is actually uncommon for ${topDisease.name} (~${Math.round(vModel[f] * 100)}%) — if this reading is accurate, consider other conditions and a clinical evaluation.`);
+      }
+    });
+  }
+  if (factors.length === 0) factors.push(`No single symptom or vital strongly dominated — this was the closest statistical match (${Math.round(topDisease.probability * 100)}%) among the modeled conditions given everything you entered.`);
   return factors;
 }
 
@@ -892,7 +936,7 @@ function runAnalysis() {
   }
 
   const extreme = isExtremeVitals(vitals);
-  const ranked = selectedSymptoms.size === 0 ? [] : naiveBayesPredict(selectedSymptoms);
+  const ranked = selectedSymptoms.size === 0 ? [] : naiveBayesPredict(selectedSymptoms, vitals);
   const top = ranked.length > 0 ? ranked[0] : {
     name: "Non-specific Illness",
     recommendation: "Monitor symptoms and consult a doctor if they worsen or persist.",
