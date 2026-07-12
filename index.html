@@ -160,6 +160,18 @@
   .diagnosis-box .disease{ font-size: 1.1rem; font-weight: 700; color: var(--teal); margin-bottom: 4px; }
   .diagnosis-box .rec{ font-size: 0.86rem; color: var(--ink-dim); line-height: 1.5; }
 
+  #emergencyBanner{
+    background: linear-gradient(90deg, #ff3b30, #ff6b5b);
+    color: #fff; padding: 14px 18px; border-radius: 10px; margin-bottom: 16px;
+    font-weight: 700; font-size: 0.92rem; display:flex; align-items:center; gap:10px;
+    animation: emergencyPulse 1.4s infinite;
+  }
+  @keyframes emergencyPulse{
+    0%{ box-shadow: 0 0 0 0 rgba(255,59,48,0.5); }
+    70%{ box-shadow: 0 0 0 14px rgba(255,59,48,0); }
+    100%{ box-shadow: 0 0 0 0 rgba(255,59,48,0); }
+  }
+
   canvas{ max-width: 100%; }
 
   .subgrid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: 16px; }
@@ -296,20 +308,29 @@
     <div class="actions">
       <button id="analyzeBtn">🔍 Analyze Health</button>
       <button id="resetBtn" class="secondary">Reset</button>
+      <button id="voiceSymptomBtn" class="ghost">🎤 Speak Symptoms</button>
     </div>
   </section>
 
   <!-- DASHBOARD -->
   <section class="card" id="dashboard">
     <h2>AI Health Dashboard <span class="tag">RESULT</span></h2>
+
+    <div id="emergencyBanner" style="display:none;"></div>
+
     <div class="score-row">
-      <div class="stat"><div class="num" id="healthScore">--</div><div class="lbl">Health Score / 100</div></div>
+      <div class="stat" style="grid-column: span 1;">
+        <canvas id="gaugeChart" width="140" height="140" style="max-width:140px;margin:0 auto;display:block;"></canvas>
+        <div id="healthScore" style="text-align:center;font-family:var(--mono);font-size:1.3rem;font-weight:700;margin-top:6px;">--</div>
+        <div id="gaugeLabel" style="text-align:center;font-size:0.7rem;color:var(--ink-dim);margin-top:2px;">Health Score / 100</div>
+      </div>
       <div class="stat"><div class="num risk-badge" id="riskLevel"><span class="dot"></span><span id="riskText">--</span></div><div class="lbl">Risk Level</div></div>
       <div class="stat"><div class="num" id="aiConfidence">--</div><div class="lbl">AI Confidence</div></div>
     </div>
     <div class="diagnosis-box">
       <div class="disease" id="predictedDisease">--</div>
       <div class="rec" id="recommendationText">--</div>
+      <button id="speakBtn" class="ghost" style="margin-top:10px;font-size:0.75rem;padding:6px 12px;">🔊 Read Aloud</button>
     </div>
     <canvas id="probChart" height="120"></canvas>
 
@@ -321,6 +342,14 @@
       <div class="mini-card">
         <h3>🧪 Recommended Lab Tests</h3>
         <ul class="mini-list" id="labTestList"></ul>
+      </div>
+      <div class="mini-card">
+        <h3>👨‍⚕️ Doctor Recommendation</h3>
+        <div id="doctorRec" style="font-size:0.85rem;color:var(--ink-dim);">--</div>
+      </div>
+      <div class="mini-card">
+        <h3>💊 Medicine Information (Demo)</h3>
+        <div id="medicineInfo" style="font-size:0.8rem;color:var(--ink-dim);"></div>
       </div>
       <div class="mini-card">
         <h3>📍 Nearby Hospitals</h3>
@@ -387,6 +416,7 @@
     </div>
     <div class="chat-input-row">
       <input id="chatInput" type="text" placeholder="Type a question..." />
+      <button id="micBtn" class="secondary" title="Speak your question">🎤</button>
       <button id="chatSendBtn">Send</button>
     </div>
   </section>
@@ -516,6 +546,40 @@ const LAB_TEST_MAP = {
   "⚠ Critical Vital Sign Alert": ["Emergency vitals monitoring", "ECG", "Blood gas analysis", "Immediate physician evaluation"]
 };
 
+// Doctor specialty by predicted condition. Specific symptoms (chest pain, skin
+// rash) can override this with a more targeted specialist - see getDoctorRecommendation().
+const DOCTOR_MAP = {
+  "Viral Fever": "General Physician",
+  "Common Cold": "General Physician",
+  "Influenza (Flu)": "General Physician",
+  "Migraine": "Neurologist",
+  "Gastroenteritis": "Gastroenterologist",
+  "Possible Respiratory Distress": "Pulmonologist",
+  "Allergic Reaction": "Dermatologist / Allergist",
+  "Non-specific Illness": "General Physician",
+  "⚠ Critical Vital Sign Alert": "Emergency Medicine (ER) — go now, do not wait for an appointment"
+};
+
+function getDoctorRecommendation(disease, symptoms) {
+  if (symptoms.includes("Chest Pain")) return "Cardiologist (chest pain should be evaluated urgently)";
+  if (symptoms.includes("Skin Rash")) return "Dermatologist";
+  if (symptoms.includes("Shortness of Breath")) return "Pulmonologist";
+  return DOCTOR_MAP[disease] || "General Physician";
+}
+
+// DEMO ONLY - not real prescribing information. Generic, commonly known OTC
+// guidance for educational purposes; always shown with a disclaimer in the UI.
+const MEDICINE_MAP = {
+  "Viral Fever": [{ name: "Paracetamol", purpose: "Reduces fever & body pain", dosage: "500mg (demo value)", time: "Every 6-8 hrs after food", sideEffects: "Rare at normal dose; avoid overdose" }],
+  "Common Cold": [{ name: "Cetirizine", purpose: "Reduces runny nose/sneezing", dosage: "10mg (demo value)", time: "Once at night", sideEffects: "Mild drowsiness" }],
+  "Influenza (Flu)": [{ name: "Paracetamol", purpose: "Fever & body ache relief", dosage: "500mg (demo value)", time: "Every 6-8 hrs after food", sideEffects: "Rare at normal dose" }],
+  "Migraine": [{ name: "Ibuprofen", purpose: "Pain relief", dosage: "200-400mg (demo value)", time: "At onset, with food", sideEffects: "Stomach upset if taken empty stomach" }],
+  "Gastroenteritis": [{ name: "ORS (Oral Rehydration Salts)", purpose: "Prevents dehydration", dosage: "1 sachet in 1L water (demo value)", time: "Sip through the day", sideEffects: "Generally safe" }],
+  "Allergic Reaction": [{ name: "Antihistamine (e.g. Cetirizine)", purpose: "Reduces allergic reaction/rash", dosage: "10mg (demo value)", time: "Once daily", sideEffects: "Mild drowsiness" }],
+  "Possible Respiratory Distress": [],
+  "⚠ Critical Vital Sign Alert": []
+};
+
 const VITAL_RANGES = {
   temp:  { min: 30, max: 42.5, label: "Body Temperature (°C)" },
   hr:    { min: 30, max: 220,  label: "Heart Rate (BPM)" },
@@ -527,6 +591,18 @@ const EXTREME_THRESHOLDS = {
   tempHigh: 40, tempLow: 35, spo2Low: 92, hrHigh: 150, hrLow: 40,
   systolicHigh: 180, diastolicHigh: 120, systolicLow: 90
 };
+
+// Separate, slightly more sensitive thresholds specifically for the red
+// emergency banner (in addition to the full diagnosis override above).
+function checkEmergencyBanner(vitals, symptoms) {
+  const reasons = [];
+  if (vitals.spo2 < 90) reasons.push("SpO₂ below 90%");
+  if (vitals.sugar < 70) reasons.push("Blood sugar below 70 mg/dL (hypoglycemia)");
+  if (vitals.temp > 39) reasons.push("Body temperature above 39°C");
+  if (symptoms.includes("Chest Pain")) reasons.push("Chest pain reported");
+  return reasons;
+}
+
 
 function parseBP(bpString) {
   const parts = (bpString || "").split("/").map(Number);
@@ -711,7 +787,18 @@ function renderDashboard(r) {
   document.getElementById("dashboard").style.display = "block";
   document.getElementById("reportCard").style.display = "block";
 
+  // Emergency banner (in addition to the Critical Vital Sign Alert override)
+  const emergencyReasons = checkEmergencyBanner(r.vitals, r.symptoms);
+  const banner = document.getElementById("emergencyBanner");
+  if (emergencyReasons.length > 0) {
+    banner.style.display = "flex";
+    banner.innerHTML = `🚨 <span>EMERGENCY: ${emergencyReasons.join(", ")}. Seek immediate medical help now.</span>`;
+  } else {
+    banner.style.display = "none";
+  }
+
   document.getElementById("healthScore").textContent = r.healthScore;
+  renderGauge(r.healthScore, r.risk);
   const riskWrap = document.getElementById("riskLevel");
   riskWrap.className = "num risk-badge " + (r.risk === "Low" ? "risk-low" : r.risk === "Moderate" ? "risk-moderate" : "risk-high");
   document.getElementById("riskText").textContent = r.risk;
@@ -721,6 +808,24 @@ function renderDashboard(r) {
   document.getElementById("recommendationText").textContent = r.recommendation;
 
   document.getElementById("followupText").textContent = followUpSuggestion(r.risk);
+
+  document.getElementById("doctorRec").textContent = getDoctorRecommendation(r.disease, r.symptoms);
+
+  const medBox = document.getElementById("medicineInfo");
+  const meds = MEDICINE_MAP[r.disease] || [];
+  if (meds.length === 0) {
+    medBox.innerHTML = `<i>No demo medicine listed for this condition — consult a physician.</i>`;
+  } else {
+    medBox.innerHTML = meds.map(m => `
+      <div style="border-bottom:1px dashed var(--line);padding:6px 0;">
+        <b style="color:var(--ink);">${m.name}</b><br/>
+        Purpose: ${m.purpose}<br/>
+        Dosage: ${m.dosage}<br/>
+        Time: ${m.time}<br/>
+        Side effects: ${m.sideEffects}
+      </div>`).join("") +
+      `<div style="font-size:0.7rem;margin-top:6px;">⚠ Demo info only — not a real prescription. Consult a doctor/pharmacist.</div>`;
+  }
 
   const labList = document.getElementById("labTestList");
   labList.innerHTML = "";
@@ -735,6 +840,28 @@ function renderDashboard(r) {
 
   document.getElementById("dashboard").scrollIntoView({ behavior: "smooth" });
 }
+
+function renderGauge(score, risk) {
+  const color = risk === "Low" ? "#3fd17d" : risk === "Moderate" ? "#f2b84b" : "#ff6b5b";
+  const ctx = document.getElementById("gaugeChart").getContext("2d");
+  if (window.gaugeChartInstance) window.gaugeChartInstance.destroy();
+  window.gaugeChartInstance = new Chart(ctx, {
+    type: "doughnut",
+    data: {
+      datasets: [{
+        data: [score, 100 - score],
+        backgroundColor: [color, "#1c3634"],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      cutout: "72%",
+      circumference: 360,
+      plugins: { legend: { display: false }, tooltip: { enabled: false } }
+    }
+  });
+}
+
 
 function renderProbChart(ranked) {
   const top5 = ranked.slice(0, 5);
@@ -990,20 +1117,56 @@ function renderReminders() {
 const CHAT_RESPONSES = [
   { keys: ["fever"], reply: "For fever: rest, stay hydrated, and monitor temperature every few hours. See a doctor if it stays above 38.5°C for more than 2-3 days." },
   { keys: ["headache", "migraine"], reply: "Try resting in a dark, quiet room and staying hydrated. Frequent or severe headaches should be checked by a doctor." },
-  { keys: ["diet", "food", "eat"], reply: "Favor light, easily digestible food (soups, fruits, whole grains) and plenty of fluids while recovering." },
   { keys: ["score", "health score"], reply: "Your Health Score reflects your vitals and symptoms — higher is better. It's a quick indicator, not a diagnosis." },
   { keys: ["risk"], reply: "Risk Level (Low/Moderate/High) estimates how urgently you may need medical attention based on your vitals and symptoms." },
   { keys: ["report", "pdf"], reply: "Click 'Download PDF Report' after analyzing to get a printable summary of your results." },
-  { keys: ["doctor", "hospital", "emergency", "see a doctor"], reply: "If you have chest pain, severe shortness of breath, or symptoms feel severe, please seek in-person medical care immediately." },
+  { keys: ["hospital", "emergency"], reply: "If you have chest pain, severe shortness of breath, or symptoms feel severe, please seek in-person medical care immediately." },
   { keys: ["accurate", "accuracy"], reply: "This is a simple rule-based demo, not a trained medical AI model — treat predictions as a rough guide, not a diagnosis." },
   { keys: ["bmi"], reply: "BMI (Body Mass Index) estimates whether your weight is healthy for your height. It doesn't account for muscle mass or body composition." },
   { keys: ["hi", "hello", "hey"], reply: "Hello! Tell me your symptoms or ask about your report, and I'll do my best to help." }
 ];
 
+// Report-aware answers - checked BEFORE the generic keyword table above,
+// so questions like "why is my BMI low" use the patient's actual last result.
+function contextualReply(lowerText) {
+  if (!lastResult) return null;
+  const r = lastResult;
+
+  if (/why.*bmi|bmi.*low|bmi.*high|bmi.*underweight|bmi.*overweight/.test(lowerText)) {
+    if (!r.bmi) return null;
+    return `Your BMI is ${r.bmi.bmi} (${r.bmi.category}). This is calculated from your height and weight. ` +
+      (r.bmi.category === "Underweight" ? "Being underweight can mean you need more calories/protein in your diet — consider discussing a nutrition plan with a doctor or dietitian." :
+       r.bmi.category === "Obese" || r.bmi.category === "Overweight" ? "Carrying extra weight can raise the risk of other conditions — regular activity and a balanced diet can help, ideally with a doctor's guidance." :
+       "That's within the normal range for your height — nice work maintaining it.");
+  }
+
+  if (/what.*(food|eat)|diet/.test(lowerText)) {
+    let tip = "Favor light, easily digestible food (soups, fruits, whole grains) and plenty of fluids while recovering.";
+    if (r.bmi && r.bmi.category === "Underweight") tip = "Since your BMI is on the lower side, focus on calorie- and protein-dense foods: nuts, dairy, eggs, lean meat/legumes, and frequent smaller meals.";
+    if (r.bmi && (r.bmi.category === "Overweight" || r.bmi.category === "Obese")) tip = "Favor vegetables, lean protein, and whole grains, and reduce sugary/fried food — ideally with a doctor or dietitian's guidance.";
+    return tip;
+  }
+
+  if (/should i (see|visit|go to).*(doctor|hospital)|see a doctor/.test(lowerText)) {
+    if (r.risk === "High") return "Yes — your risk level is High. Please see a doctor as soon as possible, today if possible.";
+    if (r.risk === "Moderate") return "Your risk level is Moderate. It's a good idea to see a doctor if symptoms don't improve in a few days.";
+    return "Your risk level is Low right now. Routine follow-up is enough unless new or worsening symptoms appear.";
+  }
+
+  if (/what.*(condition|disease|wrong)/.test(lowerText)) {
+    return `Based on your last analysis, the predicted condition was "${r.disease}" with ${r.confidence}% confidence. ${r.recommendation}`;
+  }
+
+  return null;
+}
+
 function chatReply(text) {
   const lower = text.toLowerCase();
+  const contextual = contextualReply(lower);
+  if (contextual) return contextual;
   const hit = CHAT_RESPONSES.find(r => r.keys.some(k => lower.includes(k)));
   if (hit) return hit.reply;
+  if (!lastResult) return "I'm a simple rule-based assistant for this demo — run an analysis first so I can answer questions about your specific report, or ask a general health question.";
   return "I'm a simple rule-based assistant for this demo — for anything beyond general guidance, please consult a licensed doctor.";
 }
 
@@ -1030,6 +1193,62 @@ document.getElementById("chatInput").addEventListener("keydown", e => { if (e.ke
 document.querySelectorAll(".quick-q span").forEach(el => {
   el.addEventListener("click", () => sendChat(el.dataset.q));
 });
+
+/* ===================== VOICE FEATURES ===================== */
+const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+function startVoiceInput(onResult) {
+  if (!SpeechRecognitionAPI) {
+    alert("Voice input isn't supported in this browser. Try Chrome on desktop or Android.");
+    return;
+  }
+  const recognition = new SpeechRecognitionAPI();
+  recognition.lang = "en-US";
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+  recognition.onresult = (event) => onResult(event.results[0][0].transcript);
+  recognition.onerror = () => alert("Couldn't hear that clearly — please try again or type instead.");
+  recognition.start();
+}
+
+document.getElementById("micBtn").addEventListener("click", () => {
+  startVoiceInput((transcript) => {
+    document.getElementById("chatInput").value = transcript;
+    sendChat();
+  });
+});
+
+document.getElementById("voiceSymptomBtn").addEventListener("click", () => {
+  startVoiceInput((transcript) => {
+    const lower = transcript.toLowerCase();
+    let matched = [];
+    document.querySelectorAll(".symptom-chip").forEach(chip => {
+      const s = chip.dataset.symptom;
+      if (lower.includes(s.toLowerCase())) {
+        selectedSymptoms.add(s);
+        chip.classList.add("active");
+        matched.push(s);
+      }
+    });
+    if (matched.length === 0) {
+      alert(`Heard: "${transcript}" — but couldn't match it to a known symptom. Please select manually.`);
+    }
+  });
+});
+
+document.getElementById("speakBtn").addEventListener("click", () => {
+  if (!lastResult) return;
+  if (!window.speechSynthesis) {
+    alert("Text-to-speech isn't supported in this browser.");
+    return;
+  }
+  const text = `Predicted condition: ${lastResult.disease}. ${lastResult.recommendation}`;
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = "en-US";
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utterance);
+});
+
 
 </script>
 </body>
